@@ -5,13 +5,28 @@
     <title>MySite: {% block title %}{% endblock %}</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #121212;
             margin: 0;
             padding: 30px;
+            font-weight: bold;
+            color: #D1C4E9;
+            font-family: Arial, serif;
+        }
+        a {
+            color: #B388FF;
+            text-decoration: none; /* Убирает подчеркивание */
+        }
+        a:hover {
+            text-decoration: underline; /* Добавляет подчеркивание */
+            color: #7C4DFF;
         }
     </style>
 </head>
 <body>
+
+    {% if request.path != '/' %}
+    <a href="/">HOME</a><br><br>
+    {% endif %}
 
     {% block content %}
     {% endblock %}
