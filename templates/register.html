@@ -1,0 +1,15 @@
+<!-- templates/register.html-->
+    {% extends 'base.html' %}
+
+    {% block title %}Sign up{% endblock %}
+
+    {% block content %}
+        <!-- PLACEHOLDER -->
+        <form action="/login" method="post">
+            Login:<br>
+            <input type="text" name="login"><br>
+            Password:<br>
+            <input type="password" name="password">
+            <input type="submit" value="Send">
+        </form>
+    {% endblock %}
