@@ -1,4 +1,8 @@
 __pycache__/
 .idea/
+templates/collector.py
+templates/folder_content.txt
+static/css/modules/collector.py
+static/css/modules/folder_content.txt
 notes
 requests.http

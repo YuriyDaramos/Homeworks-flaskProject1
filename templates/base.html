@@ -1,35 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <title>MySite: {% block title %}{% endblock %}</title>
-    <style>
-        body {
-            background-color: #121212;
-            margin: 0;
-            padding: 30px;
-            font-weight: bold;
-            color: #D1C4E9;
-            font-family: Arial, serif;
-        }
-        a {
-            color: #B388FF;
-            text-decoration: none; /* Убирает подчеркивание */
-        }
-        a:hover {
-            text-decoration: underline; /* Добавляет подчеркивание */
-            color: #7C4DFF;
-        }
-    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="sidebar">
+            <!-- Боковая панель навигации -->
+            <a href="/login">Войти</a>
+            <a href="/register">Регистрация</a>
+            <a href="/logout">Выйти</a>
+            <a href="/profiles">Профили</a>
+            <a href="/profiles/me">Мой профиль</a>
+            <a href="/profiles/random_user">Профиль случайного пользователя</a>
+            <a href="/profiles/search_history">История поиска</a>
+            <a href="/profiles/favorites">Избранное</a>
+            <a href="/items">Товары</a>
+            <a href="/items/random_item">Случайный товар</a>
+            <a href="/leasers">Арендодатели</a>
+            <a href="/leasers/random_leaser_details">Случайный арендодатель</a>
+            <a href="/contracts/random_contract">Случайный контракт</a>
+            <a href="/search">Поиск</a>
+            <a href="/complain">Жалоба</a>
+            <a href="/compare">Сравнить</a>
+        </div>
 
-    {% if request.path != '/' %}
-    <a href="/">HOME</a><br><br>
-    {% endif %}
-
-    {% block content %}
-    {% endblock %}
-
+        <div class="content-container">
+            <div class="content">
+                {% block content %}
+                <!-- Содержимое страницы будет вставлено здесь -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
 </body>
 </html>

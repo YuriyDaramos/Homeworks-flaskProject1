@@ -1,0 +1,60 @@
+/* Общие стили для форм */
+form {
+    background-color: #444444; /* Цвет фона формы */
+    border-radius: 8px; /* Закругленные углы формы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень для формы */
+    display: flex; /* Гибкое размещение */
+    flex-direction: column; /* Вертикальное расположение */
+    align-items: stretch; /* Центрирование по горизонтали */
+    padding: 20px; /* Внутренние отступы */
+    font-size: 1.2em; /* Увеличение размера шрифта */
+    font-weight: bold; /* Полужирный текст */
+    margin: 20px auto; /* Центрирование формы по всему экрану */
+    width: 80%; /* Ширина формы */
+    max-width: 300px; /* Максимальная ширина формы */
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px; /* Внутренние отступы */
+    border-radius: 4px; /* Закругленные углы */
+    margin: 10px 0; /* Отступы между полями */
+    width: calc(100% - 20px); /* Убираем отступы */
+    box-sizing: content-box; /* Учитываем отступы и границы в ширине */
+    font-weight: bold; /* Полужирный текст */
+}
+
+button[type="submit"],
+.logout-form button[type="button"] {
+    background-color: #64a95d; /* Цвет фона кнопки */
+    border: none; /* Убираем границу */
+    color: white; /* Цвет текста кнопки */
+    padding: 10px; /* Внутренние отступы */
+    width: 100%; /* Ширина кнопки */
+    cursor: pointer; /* Указатель при наведении */
+    margin-top: 10px; /* Отступ сверху */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине */
+    font-weight: bold; /* Полужирный текст */
+}
+
+button[type="submit"]:hover,
+.logout-form button[type="button"]:hover {
+    background-color: #4b9c46; /* Цвет при наведении */
+    font-weight: bold; /* Полужирный текст */
+}
+
+/* Стиль для формы выхода */
+.logout-form {
+    display: flex; /* Вертикальное расположение кнопок */
+    flex-direction: column; /* Расположение кнопок по вертикали */
+    align-items: center; /* Центрирование кнопок */
+    background-color: #444444; /* Цвет фона формы */
+    color: white; /* Цвет текста */
+    padding: 20px; /* Внутренние отступы */
+    cursor: pointer; /* Указатель при наведении */
+}
+
+.logout-form button[type="button"].cancel-button {
+    background-color: #4b9c46; /* Оригинальный цвет фона */
+    font-weight: bold; /* Полужирный текст */
+}

@@ -1,0 +1,7 @@
+body {
+    background-color: #121212; /* Темный фон */
+    color: #DDDDDD; /* Цвет текста */
+    font-family: Arial, serif; /* Шрифт текста */
+    margin: 0; /* Убираем отступы */
+    padding: 0; /* Убираем отступы */
+}

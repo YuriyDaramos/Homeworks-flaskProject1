@@ -1,9 +1,10 @@
-<!-- templates/user_profile.html-->
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-    {% block title %}User {{ user_id }} Profile{% endblock %}
+{% block title %}Профиль пользователя {{ user_id }}{% endblock %}
 
-    {% block content %}
-        <p>User profile #{{ user_id }} doesn't exist.</p><br>
-        <p style="font-weight: bold;">THIS PAGE IS A PLACEHOLDER</p>
-    {% endblock %}
+{% block content %}
+    <div class="form-container">
+        <p>Профиль пользователя #{{ user_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}

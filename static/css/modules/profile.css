@@ -1,0 +1,17 @@
+/* Стиль для профиля */
+.profile-container {
+    display: flex; /* Гибкое размещение для профиля */
+    flex-direction: column;
+    margin-left: 20px; /* Добавляем отступ слева */
+}
+
+.profile-avatar {
+    width: 240px; /* Увеличиваем ширину аватара */
+    height: 240px; /* Увеличиваем высоту аватара */
+    margin-right: 10px; /* Отступ справа от аватара */
+}
+
+.profile-content {
+    flex-grow: 1; /* Занимает оставшееся пространство */
+    margin-top: 20px; /* Отступ сверху для текста */
+}

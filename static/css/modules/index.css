@@ -1,0 +1,21 @@
+/* Индексные ссылки в плитках */
+.index-links {
+    display: grid; /* Используем грид для выравнивания */
+    grid-template-columns: repeat(4, 1fr); /* Четыре плитки в строке */
+    gap: 10px; /* Отступы между плитками */
+    padding: 20px; /* Отступы вокруг плиток */
+}
+
+.index-links a {
+    background-color: #444; /* Цвет фона для плиток */
+    color: #AADDFF; /* Цвет текста */
+    padding: 15px; /* Внутренние отступы */
+    border-radius: 5px; /* Закругленные углы */
+    text-align: center; /* Центрируем текст */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+    text-decoration: none; /* Убираем подчеркивание */
+}
+
+.index-links a:hover {
+    background-color: #555; /* Цвет фона при наведении */
+}

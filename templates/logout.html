@@ -1,9 +1,11 @@
-<!-- templates/logout.html-->
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-    {% block title %}Log Out{% endblock %}
+{% block title %}Подтверждение выхода{% endblock %}
 
-    {% block content %}
-        <p>You have successfully logged out.</p><br>
-        <p style="font-weight: bold;">THIS PAGE IS A PLACEHOLDER</p>
-    {% endblock %}
+{% block content %}
+    <form class="logout-form" action="/logout" method="post">
+        <h2>Вы уверены, что хотите выйти?</h2>
+        <button type="submit">Да, выйти</button> <!-- Кнопка "Да" -->
+        <button type="button" class="cancel-button" onclick="window.history.back()">Нет, остаться</button> <!-- Кнопка "Нет" -->
+    </form>
+{% endblock %}

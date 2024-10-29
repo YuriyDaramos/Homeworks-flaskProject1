@@ -1,9 +1,10 @@
-<!-- templates/contract.html-->
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-    {% block title %}Contract {{ contract_id }}{% endblock %}
+{% block title %}Контракт {{ contract_id }}{% endblock %}
 
-    {% block content %}
-        <p>Contact #{{ contract_id }} doesn't exist.</p><br>
-        <p style="font-weight: bold;">THIS PAGE IS A PLACEHOLDER</p>
-    {% endblock %}
+{% block content %}
+    <div class="form-container">
+        <p>Контракт #{{ contract_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}

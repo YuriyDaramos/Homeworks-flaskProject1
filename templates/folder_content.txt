@@ -1,0 +1,375 @@
+base.html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>MySite: {% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div class="container">
+        {% if g.show_sidebar %}
+            <div class="sidebar">
+                <!-- Боковая панель навигации -->
+                <a href="/login">Войти</a>
+                <a href="/register">Регистрация</a>
+                <a href="/logout">Выйти</a>
+                <a href="/profiles">Профили</a>
+                <a href="/profiles/me">Мой профиль</a>
+                <a href="/profiles/random_user">Профиль случайного пользователя</a>
+                <a href="/profiles/search_history">История поиска</a>
+                <a href="/profiles/favorites">Избранное</a>
+                <a href="/items">Товары</a>
+                <a href="/items/random_item">Случайный товар</a>
+                <a href="/leasers">Арендодатели</a>
+                <a href="/leasers/random_leaser_details">Случайный арендодатель</a>
+                <a href="/contracts/random_contract">Случайный контракт</a>
+                <a href="/search">Поиск</a>
+                <a href="/complain">Жалоба</a>
+                <a href="/compare">Сравнить</a>
+            </div>
+        {% endif %}
+
+        <div class="content">
+            {% block content %}
+            <!-- Содержимое страницы будет вставлено здесь -->
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>
+
+
+compare.html
+{% extends 'base.html' %}
+
+{% block title %}Сравнить{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Выберите хотя бы два товара для сравнения.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+complain.html
+{% extends 'base.html' %}
+
+{% block title %}Жалоба{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>¯\_(ツ)_/¯</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+contract.html
+{% extends 'base.html' %}
+
+{% block title %}Контракт {{ contract_id }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Контракт #{{ contract_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+favorites.html
+{% extends 'base.html' %}
+
+{% block title %}Избранное{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Товары, помеченные как Избранное.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+index.html
+{% extends 'base.html' %}
+
+{% block title %}Навигация{% endblock %}
+
+{% block content %}
+    <div class="index-container">
+        <div class="index-links">
+            <a href="/login">Войти</a>
+            <a href="/register">Регистрация</a>
+            <a href="/logout">Выход</a>
+            <a href="/profiles">Профили</a>
+            <a href="/profiles/me">Мой профиль</a>
+            <a href="/profiles/random_user">Случайный пользователь</a>
+            <a href="/profiles/search_history">История поиска</a>
+            <a href="/profiles/favorites">Избранное</a>
+            <a href="/items">Товары</a>
+            <a href="/items/random_item">Случайный товар</a>
+            <a href="/leasers">Арендодатели</a>
+            <a href="/leasers/random_leaser_details">Случайный арендодатель</a>
+            <a href="/contracts/random_contract">Случайный контракт</a>
+            <a href="/search">Поиск</a>
+            <a href="/complain">Жалоба</a>
+            <a href="/compare">Сравнить</a>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+items.html
+{% extends 'base.html' %}
+
+{% block title %}Список товаров{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Текущий список товаров.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+item_details.html
+{% extends 'base.html' %}
+
+{% block title %}Карточка товара {{ item_id }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Товар #{{ item_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+lease.html
+{% extends 'base.html' %}
+
+{% block title %}Карточка аренды #{{ leaser_id }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Карточка аренды #{{ leaser_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+leasers.html
+{% extends 'base.html' %}
+
+{% block title %}Арендодатели{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Список арендаторов.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+login.html
+{% extends 'base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="login_or_email">Логин или email:</label>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['email'] }}</span> <!-- Сообщение для почты -->
+                    {% endif %}
+                {% endwith %}
+                <input type="text" name="login_or_email" placeholder="Введите логин или email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['password'] }}</span> <!-- Сообщение для почты -->
+                    {% endif %}
+                {% endwith %}
+                <input type="password" name="password" placeholder="Введите пароль" required>
+            </div>
+
+            <input type="submit" value="Отправить">
+        </form>
+    </div>
+{% endblock %}
+
+
+
+logout.html
+{% extends 'base.html' %}
+
+{% block title %}Подтверждение выхода{% endblock %}
+
+{% block content %}
+    <form class="logout-form" action="/logout" method="post">
+        <h2>Вы уверены, что хотите выйти?</h2>
+        <button type="submit">Да, выйти</button> <!-- Кнопка "Да" -->
+        <button type="button" class="cancel-button" onclick="window.history.back()">Нет, остаться</button> <!-- Кнопка "Нет" -->
+    </form>
+{% endblock %}
+
+
+
+profile.html
+{% extends 'base.html' %}
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+    <div class="profile-content">
+        <div class="profile-header">
+            <h2>Профиль пользователя</h2>
+        </div>
+
+        <div class="profile-avatar">
+            <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар" width="300" height="300">
+        </div>
+
+        <div class="profile-details">
+            <div class="profile-field"><strong>Логин:</strong> <span>{{ user.login }}</span></div>
+            <div class="profile-field"><strong>Имя:</strong> <span>{{ user.first_name }}</span></div>
+            <div class="profile-field"><strong>Фамилия:</strong> <span>{{ user.last_name }}</span></div>
+            <div class="profile-field"><strong>Дата регистрации:</strong> <span>{{ user.register_date }}</span></div>
+            <div class="profile-field"><strong>Контактный телефон:</strong> <span>{{ user.contact_phone }}</span></div>
+            <div class="profile-field"><strong>Контактный email:</strong> <span>{{ user.contact_email }}</span></div>
+            <div class="profile-field"><strong>Паспортные данные:</strong> <span>[Зарезервировано]</span></div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+profiles.html
+{% extends 'base.html' %}
+
+{% block title %}Профили{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Список профилей</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+register.html
+{% extends 'base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+    <div class="signup-form">
+        <form action="/register" method="post">
+            <div class="form-group">
+                <label for="user_login">Логин:<span style="color: red;">*</span></label>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['user_login'] }}</span> <!-- Сообщение для логина -->
+                    {% endif %}
+                {% endwith %}
+                <input type="text" name="user_login" placeholder="Введите логин" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:<span style="color: red;">*</span></label>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['email'] }}</span> <!-- Сообщение для почты -->
+                    {% endif %}
+                {% endwith %}
+                <input type="text" name="email" placeholder="Введите email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:<span style="color: red;">*</span></label>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['password'] }}</span> <!-- Сообщение для пароля -->
+                    {% endif %}
+                {% endwith %}
+                <input type="password" name="password" placeholder="Введите пароль" required>
+            </div>
+
+            <div class="form-group">
+                <label for="first_name">Имя:</label>
+                <input type="text" name="first_name" placeholder="Введите имя">
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Фамилия:</label>
+                <input type="text" name="last_name" placeholder="Введите фамилию">
+            </div>
+
+            <input type="submit" value="Отправить">
+        </form>
+    </div>
+{% endblock %}
+
+
+
+search.html
+{% extends 'base.html' %}
+
+{% block title %}Поиск товаров{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Извините, поиск товаров в данный момент недоступен.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+search_history.html
+{% extends 'base.html' %}
+
+{% block title %}История поиска{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Ваша история поиска.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+
+user_profile.html
+{% extends 'base.html' %}
+
+{% block title %}Профиль пользователя {{ user_id }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <p>Профиль пользователя #{{ user_id }} не существует.</p>
+        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    </div>
+{% endblock %}
+
+
+

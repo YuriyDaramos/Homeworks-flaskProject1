@@ -1,0 +1,6 @@
+/* Ошибки */
+.error-message {
+    color: red; /* Цвет сообщения */
+    font-size: 0.8em; /* Уменьшение шрифта */
+    vertical-align: middle; /* Выравнивание по вертикали */
+}
