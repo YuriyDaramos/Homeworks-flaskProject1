@@ -1,32 +1,30 @@
 from datetime import date
 from random import randint
 from flask import Flask, render_template, url_for, session, g, request
-import sqlite3
-from utils import *
+from modules.utils import *
+from modules.user_management import *
 
 # Инициализация Flask
 app = Flask(__name__)
 app.secret_key = "12345"
 
-# Список маршрутов, где сайдбар не отображается
-exclude_sidebar_routes = ["index", "logout"]  # ! Указать имена _функций_ маршрутов
-
 database_name = "db_flask1.sqlite"
 
 
-# Этот декоратор регистрирует функцию, которая будет вызвана перед обработкой каждого запроса
-@app.before_request
-def before_request():
-    # Получение имени запрошенного маршрута
-    endpoint = request.endpoint
-    g.show_sidebar = endpoint not in exclude_sidebar_routes
+@app.context_processor
+def inject_user():
+    user_id: str = session.get("user_id")
+    if user_id:
+        user_name = get_data_from_db("login", database=database_name, sheet="users", search_field="id", value=user_id,
+                                     debug=True)
+        return {"user_name": user_name[0]}
+    return {"user_name": "Гость"}
 
 
-# Пример регистрации ресурса (корневой URL в данном случае)
 @app.route("/", methods=["GET"])
 def index():
     if request.method == "GET":
-        return render_template("index.html", show_sidebar=False)    # Рендер страницы index.html
+        return render_template("index.html", show_sidebar=False)  # Рендер страницы index.html
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -36,39 +34,20 @@ def login():
             return redirect(url_for("profile_me"))
         return render_template("login.html")
     if request.method == "POST":
-        # Рассовывание данных из формы по соответствующим переменным
-        login_or_email, password = (
-            request.form.get("login_or_email"),
+
+        identifier, password = (
+            request.form.get("identifier"),
             request.form.get("password")
         )
 
-        with sqlite3.connect(database_name) as con:
-            cur = con.cursor()
-            # Проверка почты
-            if is_valid_email(login_or_email):
-                if cur.execute("SELECT COUNT(*) FROM user WHERE contact_email = ?", (login_or_email,)).fetchone()[0]:
-                    user_id = get_user_id_with_pass(cur, password, contact_email=login_or_email)
-                    if user_id:
-                        session["user_id"] = user_id
-                        return redirect(url_for("profile_me"))
-                    else:
-                        return flash_and_redirect("password", "Неверный пароль", "/login")
-                else:
-                    return flash_and_redirect("email", "Неверно указан email", "/login")
-
-            # Проверка логина
-            else:
-                if cur.execute("SELECT COUNT(*) FROM user WHERE login = ?", (login_or_email,)).fetchone()[0]:
-                    user_id = get_user_id_with_pass(cur, password, user_login=login_or_email)
-                    if user_id:
-                        session["user_id"] = user_id
-                        return redirect(url_for("profile_me"))
-                    else:
-                        return flash_and_redirect("password", "Неверный пароль", "/login")
-                else:
-                    return flash_and_redirect("password", "Неверно указан логин", "/login")
+        user_id = verify_and_get_user_id(database_name, identifier, password, sheet="users", search_field="email")
+        if user_id:
+            session["user_id"] = user_id
+            return redirect(url_for("profile_me"))
+        return flash_and_redirect("form", "Упс, что-то пошло не так! Пишите в Спортлото", "/login")
 
 
+# МОЯ РЕАЛИЗАЦИЯ
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Обрабатывает регистрацию пользователей.
@@ -81,7 +60,8 @@ def register():
         - Проверяет уникальность адреса электронной почты и логина в базе данных.
             - Если адрес электронной почты уже используется, возвращает сообщение об ошибке.
             - Если логин уже существует, возвращает сообщение об ошибке.
-        - Если все проверки пройдены, регистрирует пользователя, сохраняет дату регистрации и ID пользователя в сессии.
+        - Если все проверки пройдены, регистрирует пользователя, сохраняет дату регистрации
+          и ID пользователя в сессии.
 
     Returns:
         Response: При успешной регистрации перенаправляет на страницу профиля пользователя.
@@ -138,7 +118,6 @@ def logout():
         session.pop("user_id", None)
         flash("Вы успешно вышли из системы!", "success")
         return redirect(url_for("index"))
-    # TODO: Выяснить зачем тут нужен был DELETE, если есть POST
 
 
 @app.route("/profiles", methods=["GET", "PUT"])
@@ -153,25 +132,20 @@ def profiles():
 def profile_me():
     if request.method == "GET":
 
-        user_id = session.get("user_id")    # Получение ID пользователя из сессии
+        user_id = session.get("user_id")
         if not user_id:
-            return redirect(url_for("login"))  # Перенаправление на страницу входа, если пользователь не авторизован
+            return redirect(url_for("login"))
 
-        with sqlite3.connect(database_name) as con:
-            cur = con.cursor()
-            user_data = cur.execute("""SELECT login, first_name, last_name, register_date, contact_phone, contact_email 
-                        FROM user WHERE id = ?""", (user_id,)).fetchone()
+        profile_fields = ("login",
+                          "first_name",
+                          "last_name",
+                          "register_date",
+                          "phone_number",
+                          "email")
+        user_data = get_data_from_db(*profile_fields, database=database_name, sheet="users", search_field="id",
+                                     value=user_id, dictionary=True)
 
-        # render_template требует словарь в именованном аргументе
-        user = tuple_to_dict(user_data,
-                             "login",
-                             "first_name",
-                             "last_name",
-                             "register_date",
-                             "contact_phone",
-                             "contact_email")
-
-        return render_template("profile.html", user=user)
+        return render_template("profile.html", user=user_data)
     if request.method == "PUT":
         return "PUT"
     if request.method == "DELETE":
@@ -212,21 +186,49 @@ def profiles_favorites():
 @app.route("/items", methods=["GET", "POST"])
 def items():
     if request.method == "GET":
-        # TODO: Взять данные из базы
+        # with DB_local(database_name) as db_cur:
+        #     db_cur.execute("SELECT * FROM item")
+        #     items = db_cur.fetchall()   # что-то тут н работает. передается лист из-за fetchALL.
+        # что-то не так с контекстным менеджером, надо починить фабрику словарей
+
         # TODO: Отобразить на странице данные render_template("_____.html")
-        return render_template("items.html")
+        return render_template("items.html", items=items)
     if request.method == "POST":
         # TODO: Получить данные из формы
         # TODO: Сохранить данные в базу
         return "POST"
 
 
-# !!! Используется как заглушка для item_details ввиду отсутствия БД
-# TODO: Удалить после реализации item_details
-@app.route("/items/random_item", methods=["GET"])
-def random_items():
-    random_item = randint(0, 999)
-    return redirect(url_for("item_details", item_id=random_item))
+@app.route("/user", methods=["GET", "POST"])
+def user():
+    if request.method == "GET":
+        # with DB_local(database_name) as db_cur:
+        #     db_cur.execute("SELECT * FROM item")
+        #     items = db_cur.fetchall()   # что-то тут н работает. передается лист из-за fetchALL.
+        # что-то не так с контекстным менеджером, надо починить фабрику словарей
+
+        # TODO: Отобразить на странице данные render_template("_____.html")
+        return render_template("user.html", items=items)
+    if request.method == "POST":
+        # TODO: Получить данные из формы
+        photo, name, desc, price_h, price_d, price_w, price_m = (
+            request.form.get("photo"),
+            request.form.get("name"),
+            request.form.get("desc"),
+            request.form.get("price_h"),
+            request.form.get("price_d"),
+            request.form.get("price_w"),
+            request.form.get("price_m"),
+        )
+
+        user_id = session["user_id"]
+
+        # TODO: Сохранить данные в базу
+        # with DB_local(database_name) as db_cur:
+        #     db_cur.execute("""INSERT INTO item (photo, name, desc, price_h, price_d, price_w, price_m, user)
+        #     VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (photo, name, desc, price_h, price_d, price_w, price_m, user_id))
+        #     item_id = cur.lastrowid
+        return redirect(url_for("item_details", item_id=item_id))
 
 
 @app.route("/items/<item_id>", methods=["GET", "DELETE"])

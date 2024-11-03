@@ -32,3 +32,25 @@ def generate_login(first_name, last_name,
                 return login    # Значит логин уникален
             else:
                 login = f"{login}{randint(entry_counter[0], entry_counter[0] + 64)}"   # Модификация логина
+
+
+# Менеджер контекста (без понятия зачем мы это делали)
+class DB_local:  # менеджер контекста (без понятия зачем мы это делали)
+    def __init__(self, file_name):
+        self.con = sqlite3.connect(file_name)
+        self.con.row_factory = dict_factory
+        self.cur = self.con.cursor()
+
+    def __enter__(self):  # Когда видит with, то срабатывает и возвращает результат в as ...
+        return self.cur
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.con.commit()
+        self.con.close()
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
