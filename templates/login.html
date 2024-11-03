@@ -6,20 +6,25 @@
     <div class="login-form">
         <form action="/login" method="post">
             <div class="form-group">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <span class="error-message">{{ messages[0]['form'] }}</span>
+                    {% endif %}
+                {% endwith %}
                 <label for="login_or_email">Логин или email:</label>
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
-                        <span class="error-message">{{ messages[0]['email'] }}</span> <!-- Сообщение для почты -->
+                        <span class="error-message">{{ messages[0]['identifier'] }}</span>
                     {% endif %}
                 {% endwith %}
-                <input type="text" name="login_or_email" placeholder="Введите логин или email" required>
+                <input type="text" name="identifier" placeholder="Введите логин или email" required>
             </div>
 
             <div class="form-group">
                 <label for="password">Пароль:</label>
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
-                        <span class="error-message">{{ messages[0]['password'] }}</span> <!-- Сообщение для пароля -->
+                        <span class="error-message">{{ messages[0]['password'] }}</span>
                     {% endif %}
                 {% endwith %}
                 <input type="password" name="password" placeholder="Введите пароль" required>

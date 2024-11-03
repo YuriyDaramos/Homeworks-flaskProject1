@@ -1,7 +1,38 @@
-@import url('modules/base.css');
+/*@import url('modules/base.css');*/
 @import url('modules/sidebar.css');
 @import url('modules/forms.css');
-@import url('modules/profile.css');
-@import url('modules/index.css');
-@import url('modules/error.css');
-@import url('modules/content.css');
+@import url('modules/header.css');
+/*@import url('modules/profile.css');*/
+/*@import url('modules/index.css');*/
+/*@import url('modules/error.css');*/
+/*@import url('modules/content.css');*/
+
+/* Основной фон страницы */
+body {
+    background-color: #181A1D;
+    color: #EEEEEE; /* Основной цвет текста */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Верхняя и нижняя панели */
+.header, .footer {
+    background-color: #242629;
+    color: #EEEEEE;
+    padding: 10px;
+    text-align: center;
+}
+
+
+/* Основной контейнер для сайдбара и контента */
+.center-container {
+    display: flex;
+}
+
+/* Основной контент */
+.content-area {
+    flex-grow: 1;
+    background-color: #181A1D;
+    padding: 20px;
+    color: #EEEEEE;
+}

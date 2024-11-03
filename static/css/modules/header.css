@@ -1,0 +1,84 @@
+.header {
+    display: flex;                      /* Устанавливает флекс-контейнер для выравнивания элементов */
+    align-items: center;                /* Выравнивание элементов по центру по вертикали */
+    justify-content: space-between;
+    padding: 10px 20px;                /* Отступы для верхней панели */
+    background-color: #242629;          /* Цвет фона верхней панели */
+}
+
+.header-left {
+    display: flex;                      /* Устанавливает флекс-контейнер для логотипа и названия */
+    align-items: center;                /* Выравнивание элементов по центру по вертикали */
+    gap: 10px;                          /* Расстояние между логотипом и названием */
+}
+
+.logo {
+    width: 30px;                        /* Ширина логотипа */
+    height: 30px;                       /* Высота логотипа */
+    margin-right: 8px;                 /* Отступ справа от логотипа */
+    margin-left: 15px;                  /* Отступ слева от логотипа */
+}
+
+
+.brand-name {
+    color: #9398A0;                     /* Цвет основного текста */
+    font-weight: bold;
+    font-size: 1.2em;
+    letter-spacing: 0.5px;
+}
+
+.rent {
+    font-weight: bold;
+    color: #9398A0; /* белый: #EEEEEE - белый (основной), #9398A0 - серый*/
+    font-size: 1.2em;
+    letter-spacing: 1px;
+}
+
+.sphere {
+    font-weight: bold;
+    color: #812223; /* красный: #812223 - темный (основной), #EC5555 - яркий, #C15858 - тусклый, */
+    font-size: 1.2em;
+    letter-spacing: 1px;
+}
+
+/* Контейнер для кнопок и элементов справа */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ссылки для авторизации */
+.header a {
+    color: #9398A0;
+    background-color: #812223;
+    padding: 5px 12px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-right: 15px;
+    transition: background-color 0.3s ease;
+}
+
+/* Эффект при наведении на ссылки */
+.header a:hover {
+    background-color: #9C3A3A;
+}
+
+/* Аватар и имя пользователя */
+.header-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.header-user {
+    color: #9398A0;
+    font-size: 1.2em;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+}
