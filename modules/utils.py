@@ -63,6 +63,15 @@ def get_user_id_with_pass(cur, password, user_login="", contact_email=""):
         return result[0]  # Возвращает id пользователя
 
 
+def get_data_from_form(form_data):
+    if form_data:
+        result = ()
+        for value in form_data.values():
+            result += (value,)
+        return result
+    return None
+
+
 def main():
     pass
 

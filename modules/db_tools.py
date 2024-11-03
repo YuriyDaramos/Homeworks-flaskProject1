@@ -60,7 +60,7 @@ def get_data_from_db(*fields, database="", sheet="", search_field="", value="", 
         LookupError: Если запись не найдена и debug=True.
     """
     if not database:
-        database = _get_database_list()
+        database = get_database_list()
 
     if isinstance(database, str):
         database = [database]
@@ -110,7 +110,7 @@ def _lookup_data(*fields, database="", sheet="", search_field="", value="", quer
         return ()
 
 
-def _get_database_list(debug=False):
+def get_database_list(debug=False):
     """Ищет файлы баз данных в директории проекта.
 
     Находит все файлы с расширением *.sqlite в директории проекта и возвращает их как список.

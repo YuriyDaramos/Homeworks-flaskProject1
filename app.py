@@ -1,30 +1,30 @@
-from datetime import date
 from random import randint
-from flask import Flask, render_template, url_for, session, g, request
-from modules.utils import *
-from modules.user_management import *
+from flask import Flask, render_template, url_for, session, request, redirect, flash
 
-# Инициализация Flask
+from modules.db_tools import get_data_from_db
+from modules.user_management import verify_and_get_user_id, is_valid_email, add_new_user
+from modules.utils import flash_and_redirect, is_valid_password
+
 app = Flask(__name__)
 app.secret_key = "12345"
 
-database_name = "db_flask1.sqlite"
+db_name = "db_flask1.sqlite"
 
 
 @app.context_processor
 def inject_user():
-    user_id: str = session.get("user_id")
+    user_id = session.get("user_id")
     if user_id:
-        user_name = get_data_from_db("login", database=database_name, sheet="users", search_field="id", value=user_id,
-                                     debug=True)
-        return {"user_name": user_name[0]}
+        user_name = get_data_from_db("login", database=db_name, sheet="users", search_field="id", value=user_id)
+        if user_name:
+            return {"user_name": user_name[0]}
     return {"user_name": "Гость"}
 
 
 @app.route("/", methods=["GET"])
 def index():
     if request.method == "GET":
-        return render_template("index.html", show_sidebar=False)  # Рендер страницы index.html
+        return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -39,75 +39,37 @@ def login():
             request.form.get("identifier"),
             request.form.get("password")
         )
-
-        user_id = verify_and_get_user_id(database_name, identifier, password, sheet="users", search_field="email")
+        user_id = verify_and_get_user_id(db_name, identifier, password, sheet="users")
         if user_id:
             session["user_id"] = user_id
             return redirect(url_for("profile_me"))
         return flash_and_redirect("form", "Упс, что-то пошло не так! Пишите в Спортлото", "/login")
 
 
-# МОЯ РЕАЛИЗАЦИЯ
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    """Обрабатывает регистрацию пользователей.
-
-    Данная функция связана с маршрутом "/register" и обрабатывает запросы GET и POST.
-    - При получении запроса GET возвращает страницу регистрации `register.html`.
-    - При получении запроса POST извлекает данные из формы и выполняет их проверку на валидность.
-        - Если пароль пустой, возвращает сообщение об ошибке.
-        - Если формат адреса электронной почты некорректный, возвращает сообщение об ошибке.
-        - Проверяет уникальность адреса электронной почты и логина в базе данных.
-            - Если адрес электронной почты уже используется, возвращает сообщение об ошибке.
-            - Если логин уже существует, возвращает сообщение об ошибке.
-        - Если все проверки пройдены, регистрирует пользователя, сохраняет дату регистрации
-          и ID пользователя в сессии.
-
-    Returns:
-        Response: При успешной регистрации перенаправляет на страницу профиля пользователя.
-        В случае ошибок возвращает сообщение и перенаправляет на страницу регистрации.
-    """
     if request.method == "GET":
         return render_template("register.html")
     if request.method == "POST":
 
-        # Рассовывание данных из формы по соответствующим переменным
-        user_login, contact_email, password, first_name, last_name = (
-            request.form.get("user_login"),
-            request.form.get("email"),
-            request.form.get("password"),
-            request.form.get("first_name"),
-            request.form.get("last_name"),
-        )
-
-        # Проверка пароля
-        if not is_valid_password(password):
+        if not is_valid_password(request.form["password"]):
             return flash_and_redirect("password", "Пароль не должен быть пустым", "/register")
 
-        # Проверка почты на формат
-        if not is_valid_email(contact_email):
+        if not is_valid_email(request.form["email"]):
             return flash_and_redirect("email", "Неверный формат почты", "/register")
 
-        with sqlite3.connect(database_name) as con:
-            cur = con.cursor()
-            # Проверка почты на уникальность
-            if cur.execute("SELECT COUNT(*) FROM user WHERE contact_email = ?", (contact_email,)).fetchone()[0]:
-                return flash_and_redirect("email", "Такой почтовый адрес уже используется", "/register")
+        if get_data_from_db("count(*)", database=db_name, sheet="users", search_field="email",
+                            value=request.form["email"])[0]:
+            return flash_and_redirect("email", "Такой почтовый адрес уже используется", "/register")
 
-            # Проверка логина на уникальность
-            if cur.execute("SELECT COUNT(*) FROM user WHERE login = ?", (user_login,)).fetchone()[0]:
-                return flash_and_redirect("user_login", "Такой логин уже существует", "/register")
+        if get_data_from_db("count(*)", database=db_name, sheet="users", search_field="login",
+                            value=request.form["user_login"])[0]:
+            return flash_and_redirect("user_login", "Такой логин уже существует", "/register")
 
-            # Все проверки пройдены — регистрируем время, создаем новую запись и передаем ID пользователя дальше
-            register_date = date.today().strftime("%d.%m.%Y")
-            cur.execute("""INSERT INTO user (login, password, first_name, last_name, contact_email, register_date)
-                        VALUES (?, ?, ?, ?, ?, ?)""",
-                        (user_login, password, first_name, last_name, contact_email, register_date))
-            user_id = cur.lastrowid
+        user_id = add_new_user(request.form, database=db_name)
+        session["user_id"] = user_id
 
-            session["user_id"] = user_id
-
-            return redirect(url_for("profile_me"))
+        return redirect(url_for("profile_me"))
 
 
 @app.route("/logout", methods=["GET", "POST"])
@@ -142,7 +104,7 @@ def profile_me():
                           "register_date",
                           "phone_number",
                           "email")
-        user_data = get_data_from_db(*profile_fields, database=database_name, sheet="users", search_field="id",
+        user_data = get_data_from_db(*profile_fields, database=db_name, sheet="users", search_field="id",
                                      value=user_id, dictionary=True)
 
         return render_template("profile.html", user=user_data)

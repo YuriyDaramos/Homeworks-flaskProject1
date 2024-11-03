@@ -1,5 +1,8 @@
-from modules.utils import flash_and_redirect
-from modules.db_tools import get_data_from_db
+import sqlite3
+from datetime import date
+
+from modules.utils import flash_and_redirect, get_data_from_form
+from modules.db_tools import get_data_from_db, get_database_list
 
 
 def is_valid_email(email: str) -> bool:
@@ -28,7 +31,6 @@ def verify_and_get_user_id(database: str, identifier: str, password: str, sheet:
             search_field = "login"
         else:
             return flash_and_redirect("form", "Заполните поля формы", "/login")
-
     # .execute("SELECT {', '.join(fields)} FROM {sheet} WHERE {search_field} = ?", (value,)).fetchone()
     result = get_data_from_db(("id", "password"), database=database, sheet=sheet,
                               search_field=search_field, value=identifier)
@@ -38,6 +40,21 @@ def verify_and_get_user_id(database: str, identifier: str, password: str, sheet:
         return flash_and_redirect("identifier", "Неверно указан email", "/login")
     elif search_field == "login":
         return flash_and_redirect("identifier", "Неверно указан логин", "/login")
+
+
+def add_new_user(form_data, database=""):
+    if not database:
+        database = get_database_list()
+
+    register_date = date.today().strftime("%d.%m.%Y")
+    userdata = get_data_from_form(form_data)
+    userdata = (*userdata, register_date)
+    with sqlite3.connect(database) as con:
+        cur = con.cursor()
+        cur.execute("""INSERT INTO users (login, password, first_name, last_name, email, register_date)
+                VALUES (?, ?, ?, ?, ?, ?)""", userdata)
+        user_id = cur.lastrowid
+    return user_id
 
 
 def main():
