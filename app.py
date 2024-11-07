@@ -1,11 +1,11 @@
+from functools import wraps
 from random import randint
 from flask import Flask, render_template, url_for, session, request, redirect, flash
 
-from modules.db_tools import DatabaseManager
 from modules.users_management import UserManager
 from modules.contracts_management import ContractsManager
 from modules.items_management import ItemManager
-from modules.utils import flash_and_redirect
+from modules.utils import flash_and_redirect, get_data_for_profile_card, get_data_for_item_card
 
 app = Flask(__name__)
 app.secret_key = "12345"
@@ -14,6 +14,16 @@ DATABASE = "db_flask1.sqlite"
 users_manager = UserManager(DATABASE)
 contracts_manager = ContractsManager(DATABASE)
 items_manager = ItemManager(DATABASE)
+
+
+def login_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user_id = session.get("user_id")
+        if not user_id:
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return wrapper
 
 
 @app.context_processor
@@ -94,11 +104,9 @@ def register():
 
 
 @app.route("/logout", methods=["GET", "POST"])
+@login_required
 def logout():
     if request.method == "GET":
-        user_id = session.get("user_id")
-        if not user_id:
-            return redirect(url_for("index"))
         return render_template("logout.html")
 
     if request.method == "POST":
@@ -109,38 +117,9 @@ def logout():
 
 @app.route("/profiles", methods=["GET"])
 def profiles():
-    flat_fields = "id, login, first_name, last_name, avatar, register_date"
-    users_data = users_manager.get_users_data(flat_fields)
+    profile_card_data = get_data_for_profile_card(users_manager, contracts_manager)
 
-    owner_data = contracts_manager.get_rental_items_data("owner_id")
-    renter_data = contracts_manager.get_rental_items_data("renter_id")
-
-    users_contracts = {}
-    for contract in owner_data:
-        user_id = contract[0]
-        items_rented = contract[1]
-        users_contracts[user_id] = {"items_rented": items_rented, "items_borrowed": 0}
-
-    for contract in renter_data:
-        if contract[0] in users_contracts:
-            users_contracts[contract[0]]["items_borrowed"] = contract[1]
-        else:
-            users_contracts[contract[0]] = {"items_rented": 0, "items_borrowed": contract[1]}
-
-    users_with_contracts = []
-    for user in users_data:
-        user_data = {
-            "id": user["id"],
-            "login": user["login"],
-            "first_name": user["first_name"],
-            "last_name": user["last_name"],
-            "avatar": user["avatar"],
-            "register_date": user["register_date"],
-            "contract": users_contracts.get(user["id"], {"items_rented": 0, "items_borrowed": 0}),
-        }
-        users_with_contracts.append(user_data)
-
-    return render_template("profiles.html", users=users_with_contracts)
+    return render_template("profiles.html", users=profile_card_data)
 
 
 @app.route("/profile/<user_id>", methods=["GET", "PUT", "DELETE"])
@@ -180,6 +159,7 @@ def random_profile():
 
 
 @app.route("/profiles/search_history", methods=["GET", "POST", "DELETE"])
+@login_required
 def profile_search_history():
     if request.method == "GET":
         return render_template("search_history.html")
@@ -190,6 +170,7 @@ def profile_search_history():
 
 
 @app.route("/profiles/favorites", methods=["GET", "POST"])
+@login_required
 def profiles_favorites():
     if request.method == "GET":
         return render_template("favorites.html")
@@ -198,6 +179,7 @@ def profiles_favorites():
 
 
 @app.route("/items/add", methods=["GET", "POST"])
+@login_required
 def add_item():
     if request.method == "GET":
         return render_template("add_item.html")
@@ -222,51 +204,16 @@ def add_item():
             item_id = register_result.get("item_id")
 
         show_add_photo_button = False
+
         return redirect(url_for("item_details", item_id=item_id,
                                 show_add_photo_button=show_add_photo_button))
 
 
 @app.route("/items/", methods=["GET"])
 def items():
-    item_fields = (
-        "id",
-        "photo",
-        "name",
-        "desc",
-        "price_h",
-        "price_d",
-        "price_w",
-        "price_m",
-    )
-    items_data = items_manager.get_items_data(item_fields)
+    item_card_data = get_data_for_item_card(items_manager, contracts_manager)
 
-    contract_fields = (
-        "item_id",
-        "is_available"
-    )
-    contracts_data = contracts_manager.get_contracts_data(contract_fields)
-
-    contracts_dict = {}
-    for contract in contracts_data:
-        contracts_dict[contract["item_id"]] = contract["is_available"]
-
-    items_with_contracts = []
-    for item in items_data:
-        is_available = contracts_dict.get(item["id"], False)
-        item_data = {
-            "id": item["id"],
-            "photo": item["photo"],
-            "name": item["name"],
-            "desc": item["desc"],
-            "price_h": item["price_h"],
-            "price_d": item["price_d"],
-            "price_w": item["price_w"],
-            "price_m": item["price_m"],
-            "is_available": is_available,
-        }
-        items_with_contracts.append(item_data)
-
-    return render_template("items.html", items=items_with_contracts)
+    return render_template("items.html", items=item_card_data)
 
 
 @app.route("/items/random_item_details", methods=["GET"])
@@ -325,12 +272,14 @@ def item_details(item_id):
 
 
 @app.route("/contracts/random_contract", methods=["GET"])
+@login_required
 def contracts():
     contract_id = randint(1, 20)
     return redirect(url_for("contract_details", contract_id=contract_id))
 
 
 @app.route("/contracts/<contract_id>", methods=["GET", "POST", "PUT"])
+@login_required
 def contract_details(contract_id):
     if request.method == "GET":
         if not session.get("user_id"):
@@ -369,12 +318,34 @@ def contract_details(contract_id):
 
 @app.route("/search", methods=["GET"])
 def search():
-    return render_template("search.html")
+    profile_card_data = get_data_for_profile_card(users_manager, contracts_manager)
+    item_card_data = get_data_for_item_card(items_manager, contracts_manager)
+
+    # Получаем поисковый запрос из URL
+    search_query = request.args.get("q", "").lower()  # Получаем запрос из строки запроса
+
+    # Ищем подходящие профили
+    founded_profiles = [
+        profile for profile in profile_card_data
+        if search_query in profile["login"].lower() or
+           search_query in profile["first_name"].lower() or
+           search_query in profile["last_name"].lower()
+    ]
+
+    # Ищем подходящие предметы
+    founded_items = [
+        item for item in item_card_data
+        if search_query in item["name"].lower() or
+           search_query in item["desc"].lower()
+    ]
+
+    return render_template("search.html", profiles=founded_profiles, items=founded_items)
 
 
 @app.route("/complain", methods=["GET", "POST"])
+@login_required
 def complain():
-    if request.method == "POST":  # TODO: Удалить после реализации остальных методов
+    if request.method == "POST":
         return render_template("complain.html")
     if request.method == "POST":
         return "POST"
@@ -382,7 +353,7 @@ def complain():
 
 @app.route("/compare", methods=["GET", "POST", "PUT"])
 def compare():
-    if request.method == "POST":  # TODO: Удалить после реализации остальных методов
+    if request.method == "POST":
         return render_template("compare.html")
     if request.method == "POST":
         return "POST"
