@@ -324,8 +324,6 @@ def item_details(item_id):
         return f"DELETE {item_id}"
 
 
-# !!! Используется как заглушка для contract_detail ввиду отсутствия БД
-# TODO: Удалить после реализации contract_detail
 @app.route("/contracts/random_contract", methods=["GET"])
 def contracts():
     contract_id = randint(1, 20)
