@@ -23,6 +23,7 @@ def login_required(func):
         if not user_id:
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -339,7 +340,7 @@ def search():
            search_query in item["desc"].lower()
     ]
 
-    return render_template("search.html", profiles=founded_profiles, items=founded_items)
+    return render_template("search.html", users=founded_profiles, items=founded_items)
 
 
 @app.route("/complain", methods=["GET", "POST"])

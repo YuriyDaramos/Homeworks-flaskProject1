@@ -3,38 +3,5 @@
 {% block title %}Список товаров{% endblock %}
 
 {% block content %}
-    <div class="items-container">
-        {% for item in items %}
-        <a href="{{ url_for('item_details', item_id=item.id) }}" class="item-card">
-            <div class="item-photo">
-                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Photo">
-            </div>
-            <div class="item-short-details">
-                <div class="item-name">{{ item.name }}</div>
-                <div class="item-short-desc">{{ item.desc }}</div>
-                <table class="price-table">
-                    <tr>
-                        <th>Час</th>
-                        <th>День</th>
-                        <th>Неделя</th>
-                        <th>Месяц</th>
-                    </tr>
-                    <tr>
-                        <td>{{ item.price_h }}</td>
-                        <td>{{ item.price_d }}</td>
-                        <td>{{ item.price_w }}</td>
-                        <td>{{ item.price_m }}</td>
-                    </tr>
-                </table>
-                <div class="item-data">
-                    {% if item.is_available %}
-                        Доступен к аренде
-                    {% else %}
-                        Не доступен
-                    {% endif %}
-                </div>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
+    {% include 'items_list.html' %}
 {% endblock %}

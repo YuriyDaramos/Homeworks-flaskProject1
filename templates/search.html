@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Поиск товаров{% endblock %}
+{% block title %}Результаты поиска{% endblock %}
 
 {% block content %}
-    <div class="form-container">
-        <p>Извините, поиск товаров в данный момент недоступен.</p>
-        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    <div class="search-results">
+        <!-- Секция для найденных пользователей -->
+        <h2>Найденные пользователи</h2>
+        {% include 'profiles_list.html' %}
+
+        <div class="search-divider"></div> <!-- Разделитель -->
+
+        <!-- Секция для найденных предметов -->
+        <h2>Найденные предметы</h2>
+        {% include 'items_list.html' %}
     </div>
 {% endblock %}

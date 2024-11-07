@@ -1,0 +1,15 @@
+<div class="users-container">
+    {% for user in users %}
+    <a href="{{ url_for('profile', user_id=user.id) }}" class="user-card">
+        <div class="user-avatar">
+            <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар">
+        </div>
+        <div class="user-short-details">
+            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+            <div class="user-data">{{ user.login }}</div>
+            <div class="user-data">На сайте с {{ user.register_date }}</div>
+            <div class="user-data">Сдано: {{ user.contract.items_rented }} | Взято: {{ user.contract.items_borrowed }}</div>
+        </div>
+    </a>
+    {% endfor %}
+</div>

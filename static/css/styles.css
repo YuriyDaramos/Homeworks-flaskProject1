@@ -61,3 +61,9 @@ body {
 .right-col {
     text-align: right; /* Выравнивание текста по правому краю */
 }
+
+.search-divider {
+    margin: 20px 0;
+    border-top: 2px solid #812223; /* Цвет разделителя */
+    width: 100%;
+}
