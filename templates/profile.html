@@ -3,7 +3,6 @@
 {% block title %}Мой профиль{% endblock %}
 
 {% block content %}
-    <div class="profile-container">
         <div class="profile-avatar">
             <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар" width="240" height="240">
         </div>
@@ -18,5 +17,4 @@
             <div class="profile-field"><strong>Контактный email:</strong> <span>{{ user.email }}</span></div>
             <div class="profile-field"><strong>Паспортные данные:</strong> <span>[Зарезервировано]</span></div>
         </div>
-    </div>
 {% endblock %}

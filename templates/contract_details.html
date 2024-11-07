@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Контракт {{ contract_id }}{% endblock %}
+
+{% block content %}
+    {% if user %}
+        <div class="contract-content">
+            <h2>Карточка контракта</h2>
+            <div class="item-info-field"><strong>Арендодатель:</strong>
+                {% if item_owner %}
+                    <span>{{ item_owner.first_name }} {{ item_owner.last_name }} ({{ item_owner.login }})</span>
+                    {% else %}
+                    <span>Неизвестен или удален</span>
+                {% endif %}
+            </div>
+            <div class="item-info-field"><strong>Арендатор:</strong>
+                {% if item_renter %}
+                    <span>{{ item_renter.first_name }} {{ item_renter.last_name }} ({{ item_renter.login }})</span>
+                    {% else %}
+                    <span>Неизвестен или удален</span>
+                {% endif %}
+            </div>
+            <div class="item-info-field"><strong>Предмет сделки:</strong>
+                {% if item.name %}
+                    <span>{{ item.name }}</span>
+                    {% else %}
+                    <span>Неизвестен или удален</span>
+                {% endif %}</div>
+            <div class="item-info-field"><strong>Начало аренды:</strong> <span>{{ contract.date_start }}</span></div>
+            <div class="item-info-field"><strong>Конец аренды:</strong> <span>{{ contract.date_end }}</span></div>
+            {% if contract.is_available == "False" %}
+                <div class="item-info-field"><strong>Контракт закрыт, все условия выполнены</strong></div>
+                {% else %}
+                <div class="item-info-field"><strong>Контракт не закрыт</strong></div>
+            {% endif %}
+            <h2>Текст контракта</h2>
+            <div class="contract-text-field">{{ contract.text }}</div>
+        </div>
+    {% else %}
+        <div class="no-data">Контракт не найден или данные недоступны.</div>
+    {% endif %}
+{% endblock %}

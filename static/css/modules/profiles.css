@@ -1,0 +1,52 @@
+.users-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+    gap: 20px; /* Отступ между карточками */
+    margin: 20px; /* Отступ для всего контейнера */
+    max-width: 1000px; /* Устанавливаем максимальную ширину контейнера */
+}
+
+.user-card {
+    display: flex; /* Используем Flexbox для выравнивания содержимого карточки */
+    background-color: #242629; /* Цвет фона карточки */
+    color: #EEEEEE; /* Цвет текста */
+    border-radius: 8px; /* Закругленные углы */
+    padding: 10px; /* Уменьшенные внутренние отступы */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    border: 2px solid #812223; /* Цвет и ширина контура карточки */
+    align-items: center; /* Выравниваем содержимое по центру по вертикали */
+    height: 100px; /* Уменьшенная высота карточек */
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине и высоте */
+}
+
+.user-card:hover {
+    background-color: #2E2023; /* Цвет фона при наведении */
+}
+
+.user-avatar {
+    margin-right: 10px; /* Отступ между аватаром и текстом */
+}
+
+.user-avatar img {
+    width: 80px; /* Уменьшенная ширина аватара */
+    height: 80px; /* Уменьшенная высота аватара */
+    border-radius: 15%; /* Закругляем аватар */
+}
+
+.user-short-details {
+    display: flex;
+    flex-direction: column; /* Располагаем текст вертикально */
+    justify-content: center; /* Центрируем текст по вертикали */
+}
+
+.user-name {
+    font-size: 16px; /* Размер шрифта для имени */
+    font-weight: bold; /* Жирный шрифт для имени */
+}
+
+.user-data {
+    color: #92979F; /* Цвет текста */
+    margin-top: 5px; /* Отступ между строками */
+    font-size: 12px; /* Размер шрифта для данных */
+}

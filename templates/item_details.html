@@ -3,8 +3,38 @@
 {% block title %}Карточка товара {{ item_id }}{% endblock %}
 
 {% block content %}
-    <div class="form-container">
-        <p>Товар #{{ item_id }} не существует.</p>
-        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
-    </div>
+    {% if user %}
+        <div class="item-image">
+            <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Image" width="400" height="400">
+        </div>
+
+        <div class="item-content">
+            <h2>Карточка товара</h2>
+            <div class="item-info-field"><strong>Название:</strong> <span>{{ item.name }}</span></div>
+            <div class="item-info-field"><strong>Владелец:</strong> <span>{{ item_owner.first_name }} {{ item_owner.last_name }} ({{ item_owner.login }})</span></div>
+            {% if contract.is_available == "False" %}
+                <div class="item-info-field"><strong>Арендовано:</strong> <span>{{ item_renter.first_name }} {{ item_renter.last_name }} ({{ item_renter.login }})</span></div>
+                <div class="item-info-field"><strong>Аренда истекает:</strong> <span>{{ contract.date_end }}</span></div>
+            {% endif %}
+            <div class="item-info-field"><strong>Описание:</strong> <span>{{ item.desc }}</span></div>
+            <div class="item-info-field"><strong>Дополнительные данные:</strong> <span>[Зарезервировано]</span></div>
+
+            <span class="item-price-field">Цена аренды:</span>
+            {% if item.price_h %}
+            <div class="item-price-field"><strong>за час:</strong> <span>{{ item.price_h }}</span></div>
+            {% endif %}
+            {% if item.price_d %}
+                <div class="item-price-field"><strong>за день:</strong> <span>{{ item.price_d }}</span></div>
+            {% endif %}
+            {% if item.price_w %}
+                <div class="item-price-field"><strong>за неделю:</strong> <span>{{ item.price_w }}</span></div>
+            {% endif %}
+            {% if item.price_m %}
+                <div class="item-price-field"><strong>за месяц:</strong> <span>{{ item.price_m }}</span></div>
+            {% endif %}
+
+        </div>
+    {% else %}
+        <div class="no-data">Товар не найден или данные недоступны.</div>
+    {% endif %}
 {% endblock %}

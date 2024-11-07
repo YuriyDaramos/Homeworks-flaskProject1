@@ -1,0 +1,34 @@
+.contract-content {
+    background-color: #242629; /* Основной фон */
+    color: #EEEEEE; /* Основной цвет текста */
+    padding: 20px;
+    border-radius: 8px; /* Закругленные углы */
+    max-width: 800px; /* Максимальная ширина для контента */
+    margin: auto; /* Выравнивание по центру */
+}
+
+.item-info-field {
+    display: flex;
+    flex-wrap: wrap; /* Разрешить перенос строк */
+    margin-bottom: 15px; /* Отступ между полями */
+    line-height: 1.6; /* Увеличенное расстояние между строками */
+    font-size: 16px; /* Размер текста для полей */
+}
+
+.item-info-field strong {
+    margin-right: 10px; /* Отступ между заголовком и значением */
+    color: #92979F; /* Цвет заголовка */
+}
+
+.contract-text-field {
+    background-color: #181A1D; /* Темный фон для текстового блока */
+    padding: 20px; /* Отступы вокруг текста */
+    border-radius: 8px; /* Закругленные углы */
+    line-height: 1.8; /* Увеличенное расстояние между строками */
+    font-size: 15px; /* Размер шрифта */
+    color: #EEEEEE; /* Цвет текста */
+    max-height: 400px; /* Ограничение по высоте */
+    overflow-y: auto; /* Добавление вертикальной прокрутки */
+    white-space: pre-line; /* Сохранение разрывов строк */
+    margin-top: 20px; /* Отступ сверху для разделения */
+}

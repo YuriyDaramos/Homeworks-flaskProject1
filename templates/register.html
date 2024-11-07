@@ -4,6 +4,11 @@
 
 {% block content %}
     <form action="/register" method="post">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <span class="error-message">{{ messages[0]['form'] }}</span>
+                {% endif %}
+            {% endwith %}
         <div class="form-group">
             <label for="user_login">Логин:<span class="required">*</span></label>
             {% with messages = get_flashed_messages() %}

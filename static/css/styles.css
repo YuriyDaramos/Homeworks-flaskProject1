@@ -1,38 +1,62 @@
-/*@import url('modules/base.css');*/
+/* Импортируем стили из различных модулей */
 @import url('modules/sidebar.css');
 @import url('modules/forms.css');
 @import url('modules/header.css');
-/*@import url('modules/profile.css');*/
-/*@import url('modules/index.css');*/
-/*@import url('modules/error.css');*/
-/*@import url('modules/content.css');*/
+@import url('modules/profile.css');
+@import url('modules/profiles.css');
+@import url('modules/item.css');
+@import url('modules/items.css');
 
 /* Основной фон страницы */
 body {
-    background-color: #181A1D;
-    color: #EEEEEE; /* Основной цвет текста */
-    margin: 0;
-    font-family: Arial, sans-serif;
+    background-color: #181A1D; /* Темный фон для всего тела страницы */
+    color: #EEEEEE; /* Основной цвет текста на странице */
+    margin: 0; /* Убираем стандартные отступы */
+    font-family: Arial, sans-serif; /* Шрифт для текста */
 }
 
 /* Верхняя и нижняя панели */
 .header, .footer {
-    background-color: #242629;
-    color: #EEEEEE;
-    padding: 10px;
-    text-align: center;
+    background-color: #242629; /* Цвет фона для верхней и нижней панелей */
+    color: #9398A0; /* Цвет текста на панелях */
+    padding: 10px; /* Отступы внутри панелей */
+    text-align: center; /* Выравнивание текста по центру */
 }
-
 
 /* Основной контейнер для сайдбара и контента */
 .center-container {
-    display: flex;
+    display: flex; /* Используем flexbox для горизонтального размещения элементов */
 }
 
 /* Основной контент */
 .content-area {
-    flex-grow: 1;
-    background-color: #181A1D;
-    padding: 20px;
-    color: #EEEEEE;
+    flex-grow: 1; /* Контент занимает оставшееся пространство */
+    background-color: #181A1D; /* Фон для основного контента */
+    padding: 20px; /* Отступы внутри контента */
+    color: #EEEEEE; /* Цвет текста в основном контенте */
+}
+
+/* Стиль таблицы внутри футера */
+.stats-table {
+    width: 1000px; /* Ширина таблицы 100% */
+    margin: 0 auto; /* Центрируем таблицу */
+    border-collapse: collapse; /* Убираем промежутки между ячейками */
+}
+
+/* Стиль ячеек таблицы */
+.stats-table td {
+    padding: 5px 20px; /* Отступы внутри ячеек */
+    vertical-align: middle; /* Выравнивание по вертикали */
+    border: none; /* Убираем границы таблицы */
+    font-size: 14px; /* Уменьшаем размер текста */
+}
+
+/* Левый столбец - выравнивание текста по левому краю */
+.left-col {
+    text-align: left; /* Выравнивание текста по левому краю */
+}
+
+/* Правый столбец - выравнивание текста по правому краю */
+.right-col {
+    text-align: right; /* Выравнивание текста по правому краю */
 }

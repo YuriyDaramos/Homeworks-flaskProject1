@@ -1,0 +1,82 @@
+.items-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+    gap: 20px; /* Отступ между карточками */
+    margin: 20px; /* Отступ для всего контейнера */
+    max-width: 1000px; /* Устанавливаем максимальную ширину контейнера */
+}
+
+.item-card {
+    display: flex; /* Используем Flexbox для выравнивания содержимого карточки */
+    background-color: #242629; /* Цвет фона карточки */
+    color: #EEEEEE; /* Цвет текста */
+    border-radius: 8px; /* Закругленные углы */
+    padding: 10px; /* Уменьшенные внутренние отступы */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    border: 2px solid #812223; /* Цвет и ширина контура карточки */
+    align-items: center; /* Выравниваем содержимое по центру по вертикали */
+    height: 180px; /* Увеличиваем высоту карточки для вмещения всего контента */
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине и высоте */
+}
+
+.item-card:hover {
+    background-color: #2E2023; /* Цвет фона при наведении */
+}
+
+.item-photo {
+    margin-right: 10px; /* Отступ между изображением и текстом */
+}
+
+.item-photo img {
+    width: 80px; /* Ширина изображения */
+    height: 80px; /* Высота изображения */
+    border-radius: 10px; /* Закругляем изображение */
+}
+
+.item-short-details {
+    display: flex;
+    flex-direction: column; /* Располагаем текст вертикально */
+    justify-content: space-between; /* Распределяем контент по высоте */
+    height: 100%; /* Задаем высоту для выравнивания */
+}
+
+.item-name {
+    font-size: 16px; /* Размер шрифта для названия товара */
+    font-weight: bold; /* Жирный шрифт для названия товара */
+}
+
+.item-short-desc {
+    color: #92979F; /* Цвет текста для описания товара */
+    font-size: 12px; /* Размер шрифта для описания */
+    margin-top: 5px; /* Отступ между названием и описанием */
+    display: -webkit-box; /* Включаем режим многоколоночного текста */
+    -webkit-line-clamp: 2; /* Обрезаем после двух строк */
+    -webkit-box-orient: vertical; /* Устанавливаем ориентацию на вертикальную */
+    overflow: hidden; /* Обрезаем текст */
+    text-overflow: ellipsis; /* Добавляем многоточие */
+}
+
+.price-table {
+    margin-top: 5px; /* Уменьшаем отступ между описанием и таблицей */
+    width: 100%; /* Ширина таблицы */
+    border-collapse: collapse; /* Убираем промежутки между ячейками */
+}
+
+.price-table th, .price-table td {
+    padding: 4px; /* Меньше отступов */
+    text-align: center; /* Выравнивание текста в ячейках */
+    border: 1px dotted #92979F; /* Пунктирные границы с цветом текста */
+    color: #92979F; /* Цвет текста в таблице такой же, как и для описания */
+    font-size: 12px; /* Размер шрифта для таблицы */
+}
+
+.item-data {
+    margin-top: 5px; /* Уменьшаем отступ между таблицей и статусом */
+    font-size: 12px; /* Размер шрифта для статуса */
+}
+
+.item-data span {
+    font-weight: bold;
+    color: #EEEEEE; /* Цвет для доступности */
+}

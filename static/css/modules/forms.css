@@ -1,73 +1,99 @@
 /* Общие стили для всех форм */
 form {
-    background-color: #242629;  /* Цвет фона форм */
-    padding: 20px;              /* Отступы внутри формы */
-    border-radius: 5px;         /* Закругленные углы формы */
-    max-width: 400px;           /* Максимальная ширина формы */
-    margin: 0 auto;             /* Центрирование формы на странице */
+    background-color: #242629;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-/* Стили для текста label */
 form label {
-    color: #EEEEEE;               /* Цвет текста */
-    display: block;               /* Отображение в блочном контексте */
-    margin-bottom: 5px;          /* Небольшой отступ снизу, чтобы отдалить от поля ввода */
+    color: #EEEEEE;
+    display: block;
+    margin-bottom: 5px;
 }
 
-/* Переход сообщения об ошибке на новую строку */
 form .form-group {
-    margin-bottom: 15px;         /* Отступ между группами полей формы */
+    margin-bottom: 15px;
 }
 
-/* Стили для полей ввода */
 form input[type="text"],
-form input[type="password"] {
-    width: 100%;                 /* Поля ввода по ширине формы */
-    padding: 10px;              /* Отступы внутри полей ввода */
-    border-radius: 5px;         /* Скругленные углы */
-    border: 1px solid #CCCCCC;   /* Рамка вокруг полей ввода */
-    background-color: #3A3B3F;   /* Цвет фона полей ввода */
-    color: #EEEEEE;              /* Цвет текста внутри полей ввода */
-    box-sizing: border-box;      /* Учитывать рамки и отступы в ширине */
+form input[type="password"],
+form input[type="number"],
+form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #CCCCCC;
+    background-color: #3A3B3F;
+    color: #EEEEEE;
+    box-sizing: border-box;
 }
 
-/* Стили для кнопок типа submit (например, кнопка "Да") */
+/* Стили для текстовой области */
+form textarea {
+    resize: vertical;          /* Позволяет изменять размер текстовой области только по вертикали */
+    height: 100px;             /* Начальная высота текстовой области */
+    font-size: 1em;            /* Размер шрифта, аналогичный другим полям */
+    color: #EEEEEE;            /* Цвет текста в текстовой области */
+    background-color: #3A3B3F; /* Цвет фона текстовой области */
+    border: 1px solid #CCCCCC; /* Рамка вокруг текстовой области */
+    padding: 10px;             /* Отступы внутри текстовой области */
+    border-radius: 5px;        /* Скругленные углы */
+    box-sizing: border-box;    /* Учитывать рамки и отступы в ширине */
+}
+
+/* Стили для плейсхолдера в текстовой области */
+form textarea::placeholder {
+    color: #92979F;            /* Цвет шрифта плейсхолдера */
+    font-size: 0.9em;          /* Размер шрифта плейсхолдера */
+    opacity: 1;                /* Обеспечивает стабильную видимость плейсхолдера */
+}
+
+/* Стили для кнопки добавления файла */
+form input[type="file"] {
+    color: #EEEEEE;
+    background-color: #3A3B3F;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    padding: 8px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Кнопки отправки и действия */
 form button[type="submit"] {
-    background-color: #343b3f;  /* Цвет кнопки submit в обычном состоянии */
-    color: #FFFFFF;              /* Цвет текста кнопки */
-    border: none;                /* Без рамки */
-    padding: 10px 15px;         /* Отступы внутри кнопки */
-    cursor: pointer;             /* Курсор в виде руки при наведении */
+    background-color: #343b3f;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
-/* Изменение цвета кнопки submit при наведении */
 form button[type="submit"]:hover {
-    background-color: #2E2023;  /* Цвет кнопки submit при наведении */
+    background-color: #2E2023;
 }
 
-/* Стили для кнопок типа button (например, кнопка "Нет") */
 form button[type="button"] {
-    background-color: #92979F; /* Цвет кнопки button в обычном состоянии */
-    color: #FFFFFF;            /* Цвет текста кнопки */
-    border: none;              /* Без рамки */
-    padding: 10px 15px;       /* Отступы внутри кнопки */
-    cursor: pointer;           /* Курсор в виде руки при наведении */
+    background-color: #92979F;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
 }
 
-/* Изменение цвета кнопки button при наведении */
 form button[type="button"]:hover {
-    background-color: #A6A8AB; /* Цвет кнопки button при наведении */
+    background-color: #A6A8AB;
 }
 
-/* Стили для звездочек */
 span.required {
-    color: red;                  /* Цвет звездочек */
+    color: red;
 }
 
-/* Стили для сообщений об ошибках */
 span.error-message {
-    color: #C42A2E;                  /* Цвет сообщений об ошибках */
-    font-size: 0.9em;            /* Меньший размер шрифта для сообщений об ошибках */
-    display: block;              /* Отображение в блочном контексте */
-    margin: 3px 0 8px 0;        /* Отступ сверху 3px, снизу 8px для отделения от предыдущего и следующего элемента */
+    color: #C42A2E;
+    font-size: 0.9em;
+    display: block;
+    margin: 3px 0 8px 0;
 }

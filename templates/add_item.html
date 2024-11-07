@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить предмет{% endblock %}
+
+{% block content %}
+    <form action="/items/add" method="post" enctype="multipart/form-data" class="add-item-form">
+        <div class="form-group">
+            <label for="name">Название предмета:<span class="required">*</span></label>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <span class="error-message">{{ messages[0]['name'] }}</span>
+                {% endif %}
+            {% endwith %}
+            <input type="text" id="name" name="name" placeholder="Введите название предмета" required>
+        </div>
+
+        <div class="form-group">
+            <label for="photo">Фото предмета:<span class="required">*</span></label>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <span class="error-message">{{ messages[0]['photo'] }}</span>
+                {% endif %}
+            {% endwith %}
+
+            {% if show_add_photo_button %}
+                <input type="file" id="photo" name="photo" required>
+            {% else %}
+                <input type="text" id="photo" name="photo" placeholder="Укажите ссылку на фото или описание" required>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="desc">Описание предмета:<span class="required">*</span></label>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <span class="error-message">{{ messages[0]['desc'] }}</span>
+                {% endif %}
+            {% endwith %}
+            <textarea id="desc" name="desc" placeholder="Введите описание предмета" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="price_h">Цена за час:</label>
+            <input type="number" id="price_h" name="price_h" placeholder="Введите цену за час">
+        </div>
+
+        <div class="form-group">
+            <label for="price_d">Цена за день:</label>
+            <input type="number" id="price_d" name="price_d" placeholder="Введите цену за день">
+        </div>
+
+        <div class="form-group">
+            <label for="price_w">Цена за неделю:</label>
+            <input type="number" id="price_w" name="price_w" placeholder="Введите цену за неделю">
+        </div>
+
+        <div class="form-group">
+            <label for="price_m">Цена за месяц:</label>
+            <input type="number" id="price_m" name="price_m" placeholder="Введите цену за месяц">
+        </div>
+
+        <button type="submit" class="submit-button">Отправить</button>
+    </form>
+{% endblock %}

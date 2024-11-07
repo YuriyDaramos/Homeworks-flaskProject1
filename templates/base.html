@@ -16,12 +16,12 @@
             </div>
 
             <div class="header-right">
-                {% if not session.user_id %}
+                {% if not current_user.id %}
                     <a href="/login">Войти</a>
                     <a href="/register">Регистрация</a>
                 {% else %}
                     <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар" class="header-avatar">
-                    <span class="header-user">{{ user_name }}</span>
+                    <span class="header-user">{{ current_user.login }}</span>
                     <a href="/logout">Выйти</a>
                 {% endif %}
             </div>
@@ -34,22 +34,28 @@
                 <!-- Боковая панель навигации -->
 
                 <span>Навигация</span>
-
-                <a href="/profiles">Профили</a>
-                <a href="/profiles/me">Мой профиль</a>
-                <a href="/profiles/random_user">Профиль случайного пользователя</a>
-                <a href="/profiles/search_history">История поиска</a>
-                <a href="/profiles/favorites">Избранное</a>
-                <a href="/items">Товары</a>
-                <a href="/items/random_item">Случайный товар</a>
-                <a href="/leasers">Арендодатели</a>
-                <a href="/leasers/random_leaser_details">Случайный арендодатель</a>
-                <a href="/contracts/random_contract">Случайный контракт</a>
-                <a href="/search">Поиск</a>
-                <a href="/complain">Жалоба</a>
-                <a href="/compare">Сравнить</a>
+                {% if current_user.id %}
+                    <a href="/profiles">Профили</a>
+                    <a href="{{ url_for('profile', user_id=current_user.id) }}">Мой профиль</a>
+                    <a href="/profiles/random_user">Профиль случайного пользователя</a>
+                    <a href="/profiles/search_history">История поиска</a>
+                    <a href="/profiles/favorites">Избранное</a>
+                    <a href="/items/add">Добавить новый товар</a>
+                    <a href="/items">Товары</a>
+                    <a href="/items/random_item_details">Случайный товар</a>
+                    <a href="/contracts/random_contract">Случайный контракт</a>
+                    <a href="/search">Поиск</a>
+                    <a href="/complain">Жалоба</a>
+                    <a href="/compare">Сравнить</a>
+                {% else %}
+                    <a href="/profiles">Профили</a>
+                    <a href="/profiles/random_user">Профиль случайного пользователя</a>
+                    <a href="/items">Товары</a>
+                    <a href="/items/random_item_details">Случайный товар</a>
+                    <a href="/search">Поиск</a>
+                    <a href="/compare">Сравнить</a>
+                {% endif %}
             </div>
-
             <div class="content-area">
                 {% block content %}
                 <!-- Содержимое страницы-->
@@ -59,8 +65,20 @@
         </div>
 
         <div class="footer">
-            <!-- Нижняя панель высотой примерно в 3-5 строк-->
-            НИЖНЯЯ ПАНЕЛЬ
+            <table class="stats-table">
+                <tr>
+                    <td class="left-col">Пользователей: {{ stats.users_total }}</td>
+                    <td class="right-col">Session ID: {{ stats.session_id }}</td>
+                </tr>
+                <tr>
+                    <td class="left-col">Предметов: {{ stats.items_total }}</td>
+                    <td class="right-col"></td> <!-- Пустой столбец для выравнивания -->
+                </tr>
+                <tr>
+                    <td class="left-col">Контрактов: {{ stats.contracts_total }}</td>
+                    <td class="right-col"></td> <!-- Пустой столбец для выравнивания -->
+                </tr>
+            </table>
         </div>
 
     </div>
