@@ -20,8 +20,8 @@ items_manager = ItemManager(DATABASE)
 def stats_data():
     session_id = session.get("user_id")
     users_total = users_manager.get_users_data("COUNT(*)")[0][0]
-    items_total = 0
-    contracts_total = 0
+    items_total = items_manager.get_items_data("COUNT(*)")[0][0]
+    contracts_total = contracts_manager.get_contracts_data("COUNT(*)")[0][0]
     stats = {
         "users_total": users_total,
         "items_total": items_total,
