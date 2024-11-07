@@ -4,11 +4,11 @@
 
 {% block content %}
     <div class="login-form">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <span class="error-message">{{ messages[0]['loginform'] }}</span>
-                {% endif %}
-            {% endwith %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <span class="error-message">{{ messages[0]['loginform'] }}</span>
+            {% endif %}
+        {% endwith %}
         <form action="/login" method="post">
             <div class="form-group">
                 <label for="login_or_email">Логин или email:</label>

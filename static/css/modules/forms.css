@@ -1,5 +1,5 @@
-/* Общие стили для всех форм */
-form {
+/* Стили для формы регистрации */
+.register-form {
     background-color: #242629;
     padding: 20px;
     border-radius: 5px;
@@ -7,20 +7,20 @@ form {
     margin: 0 auto;
 }
 
-form label {
+.register-form label {
     color: #EEEEEE;
     display: block;
     margin-bottom: 5px;
 }
 
-form .form-group {
+.register-form .form-group {
     margin-bottom: 15px;
 }
 
-form input[type="text"],
-form input[type="password"],
-form input[type="number"],
-form textarea {
+.register-form input[type="text"],
+.register-form input[type="password"],
+.register-form input[type="number"],
+.register-form textarea {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -30,60 +30,120 @@ form textarea {
     box-sizing: border-box;
 }
 
-/* Стили для текстовой области */
-form textarea {
-    resize: vertical;          /* Позволяет изменять размер текстовой области только по вертикали */
-    height: 100px;             /* Начальная высота текстовой области */
-    font-size: 1em;            /* Размер шрифта, аналогичный другим полям */
-    color: #EEEEEE;            /* Цвет текста в текстовой области */
-    background-color: #3A3B3F; /* Цвет фона текстовой области */
-    border: 1px solid #CCCCCC; /* Рамка вокруг текстовой области */
-    padding: 10px;             /* Отступы внутри текстовой области */
-    border-radius: 5px;        /* Скругленные углы */
-    box-sizing: border-box;    /* Учитывать рамки и отступы в ширине */
-}
-
-/* Стили для плейсхолдера в текстовой области */
-form textarea::placeholder {
-    color: #92979F;            /* Цвет шрифта плейсхолдера */
-    font-size: 0.9em;          /* Размер шрифта плейсхолдера */
-    opacity: 1;                /* Обеспечивает стабильную видимость плейсхолдера */
-}
-
-/* Стили для кнопки добавления файла */
-form input[type="file"] {
-    color: #EEEEEE;
-    background-color: #3A3B3F;
-    border: 1px solid #CCCCCC;
-    border-radius: 5px;
-    padding: 8px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-/* Кнопки отправки и действия */
-form button[type="submit"] {
-    background-color: #343b3f;
-    color: #FFFFFF;
+/* Стили для кнопки отправки формы регистрации */
+.register-form button[type="submit"] {
+    color: #9398A0;
+    background-color: #812223;
+    padding: 5px 8px;
+    font-weight: bold;
+    font-size: 1em;
     border: none;
-    padding: 10px 15px;
+    border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
+    transition: background-color 0.3s ease;
 }
 
-form button[type="submit"]:hover {
-    background-color: #2E2023;
+.register-form button[type="submit"]:hover {
+    background-color: #9C3A3A;
 }
 
-form button[type="button"] {
+/* Стили для формы логина */
+.login-form {
+    background-color: #242629;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.login-form label {
+    color: #EEEEEE;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-form .form-group {
+    margin-bottom: 15px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form input[type="number"],
+.login-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #CCCCCC;
+    background-color: #3A3B3F;
+    color: #EEEEEE;
+    box-sizing: border-box;
+}
+
+.login-form button[type="submit"] {
+    color: #9398A0;
+    background-color: #812223;
+    padding: 5px 8px;
+    font-weight: bold;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.login-form button[type="submit"]:hover {
+    background-color: #9C3A3A;
+}
+
+/* Стили для формы логаута */
+.logout-form {
+    background-color: #242629;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.logout-form label {
+    color: #EEEEEE;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Стили для кнопки отправки формы логаута */
+.logout-form button[type="submit"] {
+    color: #9398A0;
+    background-color: #812223;
+    padding: 5px 8px;
+    font-weight: bold;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-form button[type="submit"]:hover {
+    background-color: #9C3A3A;
+}
+
+/* Стили для кнопки "Нет, остаться" в логауте */
+.logout-form button[type="button"] {
     background-color: #92979F;
     color: #FFFFFF;
-    border: none;
-    padding: 10px 15px;
+    font-weight: normal;
+    font-size: 1em;
+    padding: 5px 8px;
+    border-radius: 4px;
     cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
 }
 
-form button[type="button"]:hover {
+.logout-form button[type="button"]:hover {
     background-color: #A6A8AB;
 }
 

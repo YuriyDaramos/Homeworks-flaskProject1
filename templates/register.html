@@ -3,17 +3,17 @@
 {% block title %}Регистрация{% endblock %}
 
 {% block content %}
-    <form action="/register" method="post">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <span class="error-message">{{ messages[0]['form'] }}</span>
-                {% endif %}
-            {% endwith %}
+    <form class="register-form" action="/register" method="post">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <span class="error-message">{{ messages[0]['form'] }}</span>
+            {% endif %}
+        {% endwith %}
         <div class="form-group">
             <label for="user_login">Логин:<span class="required">*</span></label>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <span class="error-message">{{ messages[0]['user_login'] }}</span> <!-- Сообщение для логина -->
+                    <span class="error-message">{{ messages[0]['user_login'] }}</span>
                 {% endif %}
             {% endwith %}
             <input type="text" name="user_login" placeholder="Введите логин" required>
@@ -23,7 +23,7 @@
             <label for="email">Email:<span class="required">*</span></label>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <span class="error-message">{{ messages[0]['email'] }}</span> <!-- Сообщение для почты -->
+                    <span class="error-message">{{ messages[0]['email'] }}</span>
                 {% endif %}
             {% endwith %}
             <input type="text" name="email" placeholder="Введите email" required>
@@ -33,7 +33,7 @@
             <label for="password">Пароль:<span class="required">*</span></label>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <span class="error-message">{{ messages[0]['password'] }}</span> <!-- Сообщение для пароля -->
+                    <span class="error-message">{{ messages[0]['password'] }}</span>
                 {% endif %}
             {% endwith %}
             <input type="password" name="password" placeholder="Введите пароль" required>

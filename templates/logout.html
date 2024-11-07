@@ -3,9 +3,9 @@
 {% block title %}Подтверждение выхода{% endblock %}
 
 {% block content %}
-    <form action="/logout" method="post">
+    <form class="logout-form" action="/logout" method="post">
         <label>Вы уверены, что хотите выйти?</label>
-        <button type="submit">Да, выйти</button> <!-- Кнопка "Да" -->
-        <button type="button" onclick="window.history.back()">Нет, остаться</button> <!-- Кнопка "Нет" -->
+        <button type="submit">Да, выйти</button>
+        <button type="button" onclick="window.history.back()">Нет, остаться</button>
     </form>
 {% endblock %}
