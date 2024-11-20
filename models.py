@@ -95,62 +95,61 @@ class Contract(Base):
         return f"<Contract {self.item_id}>"
 
 
-# Не используются, пока спрятаны от alembic в целях теста миграций.
-# class Feedback(Base):
-#     __tablename__ = "feedback"
-#
-#     id = Column(Integer, primary_key=True)
-#     user = Column(Integer, ForeignKey("users.id"), nullable=False)
-#     author = Column(Integer, ForeignKey("users.id"), nullable=False)
-#     text = Column(Text, nullable=False)
-#     grade = Column(Integer, nullable=False)
-#     contract = Column(Integer, ForeignKey("contracts.item_id"), nullable=False)
-#
-#     user_relationship = relationship("User", foreign_keys=[user], backref="feedback_received")
-#     author_relationship = relationship("User", foreign_keys=[author], backref="feedback_given")
-#     contract_relationship = relationship("Contract", backref="feedback")
-#
-#     def __init__(self, user, author, text, grade, contract):
-#         self.user = user
-#         self.author = author
-#         self.text = text
-#         self.grade = grade
-#         self.contract = contract
-#
-#     def __repr__(self):
-#         return f"<Feedback id={self.id} user={self.user} author={self.author}>"
-#
-#
-# class Favourite(Base):
-#     __tablename__ = "favourites"
-#
-#     user = Column(Integer, ForeignKey("users.id"), primary_key=True)
-#     item = Column(Integer, ForeignKey("items.id"), primary_key=True)
-#
-#     user_relationship = relationship("User", backref="favourites")
-#     item_relationship = relationship("Item", backref="favourited_by")
-#
-#     def __init__(self, user, item):
-#         self.user = user
-#         self.item = item
-#
-#     def __repr__(self):
-#         return f"<Favourite user={self.user} item={self.item}>"
-#
-#
-# class SearchHistory(Base):
-#     __tablename__ = "search_history"
-#
-#     user = Column(Integer, ForeignKey("users.id"), primary_key=True)
-#     search_text = Column(Text, nullable=False)
-#     timestamp = Column(String, nullable=False)
-#
-#     user_relationship = relationship("User", backref="search_history")
-#
-#     def __init__(self, user, search_text, timestamp):
-#         self.user = user
-#         self.search_text = search_text
-#         self.timestamp = timestamp
-#
-#     def __repr__(self):
-#         return f"<SearchHistory user={self.user} search_text='{self.search_text}' timestamp={self.timestamp}>"
+class Feedback(Base):
+    __tablename__ = "feedback"
+
+    id = Column(Integer, primary_key=True)
+    user = Column(Integer, ForeignKey("users.id"), nullable=False)
+    author = Column(Integer, ForeignKey("users.id"), nullable=False)
+    text = Column(Text, nullable=False)
+    grade = Column(Integer, nullable=False)
+    contract = Column(Integer, ForeignKey("contracts.item_id"), nullable=False)
+
+    user_relationship = relationship("User", foreign_keys=[user], backref="feedback_received")
+    author_relationship = relationship("User", foreign_keys=[author], backref="feedback_given")
+    contract_relationship = relationship("Contract", backref="feedback")
+
+    def __init__(self, user, author, text, grade, contract):
+        self.user = user
+        self.author = author
+        self.text = text
+        self.grade = grade
+        self.contract = contract
+
+    def __repr__(self):
+        return f"<Feedback id={self.id} user={self.user} author={self.author}>"
+
+
+class Favourite(Base):
+    __tablename__ = "favourites"
+
+    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    item = Column(Integer, ForeignKey("items.id"), primary_key=True)
+
+    user_relationship = relationship("User", backref="favourites")
+    item_relationship = relationship("Item", backref="favourited_by")
+
+    def __init__(self, user, item):
+        self.user = user
+        self.item = item
+
+    def __repr__(self):
+        return f"<Favourite user={self.user} item={self.item}>"
+
+
+class SearchHistory(Base):
+    __tablename__ = "search_history"
+
+    user = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    search_text = Column(Text, nullable=False)
+    timestamp = Column(String, nullable=False)
+
+    user_relationship = relationship("User", backref="search_history")
+
+    def __init__(self, user, search_text, timestamp):
+        self.user = user
+        self.search_text = search_text
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f"<SearchHistory user={self.user} search_text='{self.search_text}' timestamp={self.timestamp}>"
