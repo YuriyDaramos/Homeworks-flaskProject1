@@ -49,7 +49,7 @@ def stats_data():
 @app.context_processor
 def inject_user():
     user_id = session.get("user_id")
-    # session["user_id"] = None
+    # session.pop("user_id", None)
     user_data = {"id": None, "login": "Guest"}
 
     if user_id:
