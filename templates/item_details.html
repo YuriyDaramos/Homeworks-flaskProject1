@@ -9,7 +9,7 @@
         </div>
 
         <div class="item-content">
-            <h2>Карточка товара</h2>
+            <h2>Карточка товара {{ item_id }}</h2>
             <div class="item-info-field"><strong>Название:</strong> <span>{{ item.name }}</span></div>
             <div class="item-info-field"><strong>Владелец:</strong> <span>{{ item_owner.first_name }} {{ item_owner.last_name }} ({{ item_owner.login }})</span></div>
             {% if contract.is_available == "False" %}
@@ -32,8 +32,22 @@
             {% if item.price_m %}
                 <div class="item-price-field"><strong>за месяц:</strong> <span>{{ item.price_m }}</span></div>
             {% endif %}
-
         </div>
+
+        <form action="{{ url_for('add_to_compare') }}" method="GET" class="compare-form-item">
+            <input type="hidden" name="item_id" value="{{ item_id }}">  <!-- передаем ID предмета -->
+            <input type="hidden" name="items" value="{{ request.args.get('items', '') }}">  <!-- сохраняем текущий список для сравнения -->
+            <input type="hidden" name="next" value="{{ request.args.get('next', url_for('item_details', item_id=item_id)) }}">  <!-- куда перенаправить после выполнения -->
+                {% if item.id in compare_list %}
+                    <button type="submit" class="compare-button-remove">
+                    Убрать из сравнения
+                    </button>
+                {% else %}
+                    <button type="submit" class="compare-button-add">
+                    Добавить к сравнению
+                    </button>
+                {% endif %}
+        </form>
     {% else %}
         <div class="no-data">Товар не найден или данные недоступны.</div>
     {% endif %}

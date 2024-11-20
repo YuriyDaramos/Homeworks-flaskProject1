@@ -3,8 +3,25 @@
 {% block title %}Сравнить{% endblock %}
 
 {% block content %}
-    <div class="form-container">
-        <p>Выберите хотя бы два товара для сравнения.</p>
-        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+    <h2>Сравнение товаров</h2>
+    <div class="compare-items">
+        {% for item in items %}
+            <div class="compare-item">
+                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Фото товара">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.desc }}</p>
+                <table>
+                    <tr>
+                        <td>Час:</td>
+                        <td>{{ item.price_h }}</td>
+                    </tr>
+                    <tr>
+                        <td>День:</td>
+                        <td>{{ item.price_d }}</td>
+                    </tr>
+                    <!-- Добавьте остальные параметры для сравнения -->
+                </table>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

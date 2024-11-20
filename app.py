@@ -1,19 +1,20 @@
+from datetime import datetime
 from functools import wraps
 from random import randint
-from flask import Flask, render_template, url_for, session, request, redirect, flash
 
-from modules.users_management import UserManager
-from modules.contracts_management import ContractsManager
-from modules.items_management import ItemManager
-from modules.utils import flash_and_redirect, get_data_for_profile_card, get_data_for_item_card
+from flask import render_template, url_for, session, request, redirect, flash, Flask
+
+from modules.utils import flash_and_redirect
+
+from database import DATABASE_URL, db_session, init_db
+import models
 
 app = Flask(__name__)
 app.secret_key = "12345"
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-DATABASE = "db_flask1.sqlite"
-users_manager = UserManager(DATABASE)
-contracts_manager = ContractsManager(DATABASE)
-items_manager = ItemManager(DATABASE)
+init_db()
 
 
 def login_required(func):
@@ -27,18 +28,21 @@ def login_required(func):
     return wrapper
 
 
+@app.teardown_request
+def teardown_request(exceptions=None):
+    db_session.remove()
+
+
 @app.context_processor
 def stats_data():
     session_id = session.get("user_id")
-    users_total = users_manager.get_users_data("COUNT(*)")[0][0]
-    items_total = items_manager.get_items_data("COUNT(*)")[0][0]
-    contracts_total = contracts_manager.get_contracts_data("COUNT(*)")[0][0]
-    stats = {
-        "users_total": users_total,
-        "items_total": items_total,
-        "contracts_total": contracts_total,
-        "session_id": session_id
-    }
+    users_total = models.User.query.count()
+    items_total = models.Item.query.count()
+    contracts_total = models.Contract.query.count()
+    stats = {"users_total": users_total,
+             "items_total": items_total,
+             "contracts_total": contracts_total,
+             "session_id": session_id}
     return dict(stats=stats)
 
 
@@ -51,9 +55,9 @@ def inject_user():
     if user_id:
         try:
             user_id = int(user_id)
-            user_login = users_manager.get_user_data(user_id, "login")
-            if user_login:
-                user_data = {"id": user_id, "login": user_login[0]}
+            user = models.User.query.filter_by(id=user_id).first()
+            if user:
+                user_data = {"id": user.id, "login": user.login}
         except (TypeError, ValueError):
             print(f"Пользователь с ID неверного типа: {type(user_id)}")
             user_data["id"] = None
@@ -77,11 +81,20 @@ def login():
         return render_template("login.html")
 
     if request.method == "POST":
-        user_id = users_manager.verify_user(request.form)
-        if user_id is not None:
-            session["user_id"] = user_id
-            return redirect(url_for("profile", user_id=user_id))
-        return flash_and_redirect("error-message", "Неверный логин или пароль", "/login")
+        identifier = request.form["identifier"]
+        password = request.form["password"]
+
+        # Email или login
+        if "@" in identifier and "." in identifier:
+            user = models.User.query.filter_by(email=identifier, password=password).first()
+        else:
+            user = models.User.query.filter_by(login=identifier, password=password).first()
+
+        if user:
+            session["user_id"] = user.id
+            return redirect(url_for("profile", user_id=user.id))
+
+        flash_and_redirect("error-message", "Неверный логин или пароль", "/login")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -93,15 +106,34 @@ def register():
         return render_template("register.html")
 
     if request.method == "POST":
-        register_result = users_manager.register_new_user(request.form)
-        if not register_result["success"]:
-            message = register_result["message"]
-            template = register_result["template"]
-            return flash_and_redirect(template, message, "/register")
-        if register_result["success"]:
-            session["user_id"] = register_result.get("user_id", None)
+        form_data = dict(request.form)
 
-        return redirect(url_for("profile", user_id=session["user_id"]))
+        email = form_data.get("email")
+        if "@" not in email or "." not in email:
+            return flash_and_redirect("email", "Неверный формат почты", "/register")
+
+        existing_user = models.User.query.filter_by(email=email).first()
+        if existing_user:
+            return flash_and_redirect("email", "Такой почтовый адрес уже используется", "/register")
+
+        user_login = form_data.get("user_login")
+        existing_user = models.User.query.filter_by(login=user_login).first()
+        if existing_user:
+            return flash_and_redirect("login", "Такой логин уже существует", "/register")
+
+        user = models.User(login=form_data.get("user_login"),
+                           password=form_data.get("password"),
+                           first_name=form_data.get("first_name"),
+                           last_name=form_data.get("last_name"),
+                           email=form_data.get("email"),
+                           register_date=datetime.now().strftime("%d-%m-%Y"))
+
+        db_session.add(user)
+        db_session.commit()
+
+        session["user_id"] = user.id
+
+        return redirect(url_for("profile", user_id=user.id))
 
 
 @app.route("/logout", methods=["GET", "POST"])
@@ -118,7 +150,21 @@ def logout():
 
 @app.route("/profiles", methods=["GET"])
 def profiles():
-    profile_card_data = get_data_for_profile_card(users_manager, contracts_manager)
+    users = models.User.query.all()
+
+    profile_card_data = []
+    for user in users:
+        items_rented = models.Contract.query.filter_by(owner_id=user.id).count()
+        items_borrowed = models.Contract.query.filter_by(renter_id=user.id).count()
+
+        profile_card_data.append({"id": user.id,
+                                  "login": user.login,
+                                  "first_name": user.first_name,
+                                  "last_name": user.last_name,
+                                  "avatar": user.avatar,
+                                  "register_date": user.register_date,
+                                  "items_rented": items_rented,
+                                  "items_borrowed": items_borrowed})
 
     return render_template("profiles.html", users=profile_card_data)
 
@@ -133,28 +179,26 @@ def profile(user_id):
                           "phone_number",
                           "email")
 
-        if user_id == session.get("user_id"):
-            user_data = users_manager.get_user_data(user_id, profile_fields)
+        # Если не авторизован
+        if not session.get("user_id"):
+            user_data = {field: "*" * 10 for field in profile_fields}
             return render_template("profile.html", user=user_data)
 
-        user_data = users_manager.get_user_data(user_id, profile_fields)
-        if not session.get("user_id"):
-            if user_id == "me":
-                return redirect(url_for("login"))
-            user_data = dict(user_data)
-            for key in user_data.keys():
-                user_data[key] = "*" * 10
-            return render_template("profile.html", user=user_data)
+        # Если авторизован
+        user = models.User.query.filter_by(id=user_id).first()
+        user_data = {field: getattr(user, field) for field in profile_fields}
         return render_template("profile.html", user=user_data)
+
     if request.method == "PUT":
         return "PUT"
+
     if request.method == "DELETE":
         return "DELETE"
 
 
 @app.route("/profiles/random_user", methods=["GET"])
 def random_profile():
-    users_total = users_manager.get_users_data("COUNT(*)")[0][0]
+    users_total = models.User.query.count()
     random_user_id = randint(1, users_total)
     return redirect(url_for("profile", user_id=random_user_id))
 
@@ -195,15 +239,22 @@ def add_item():
             return flash_and_redirect("desc", "Описание предмета не должно быть пустым", "/items")
 
         owner_id = session.get("user_id")
-        item_id = None
-        register_result = items_manager.register_new_item(request.form, owner_id)
-        if not register_result["success"]:
-            message = register_result["message"]
-            template = register_result["template"]
-            return flash_and_redirect(template, message, "/register")
-        if register_result["success"]:
-            item_id = register_result.get("item_id")
 
+        item = models.Item(name=request.form["name"],
+                           photo=request.form["photo"],
+                           desc=request.form.get("desc"),
+                           price_h=request.form.get("price_h"),
+                           price_d=request.form.get("price_d"),
+                           price_w=request.form.get("price_w"),
+                           price_m=request.form.get("price_m"),
+                           owner_id=owner_id)
+
+        db_session.add(item)
+        db_session.commit()
+
+        item_id = item.id
+
+        # Параметр, чтобы показать кнопку добавления фото
         show_add_photo_button = False
 
         return redirect(url_for("item_details", item_id=item_id,
@@ -212,7 +263,23 @@ def add_item():
 
 @app.route("/items/", methods=["GET"])
 def items():
-    item_card_data = get_data_for_item_card(items_manager, contracts_manager)
+    items_list = models.Item.query.all()
+
+    item_card_data = []
+    for item in items_list:
+        contract = models.Contract.query.filter_by(item_id=item.id).first()
+        is_available = contract.is_available if contract else None
+
+        item_card_data.append({"id": item.id,
+                               "name": item.name,
+                               "photo": item.photo,
+                               "desc": item.desc,
+                               "price_h": item.price_h,
+                               "price_d": item.price_d,
+                               "price_w": item.price_w,
+                               "price_m": item.price_m,
+                               "owner_id": item.owner_id,
+                               "is_available": is_available})
 
     return render_template("items.html", items=item_card_data)
 
@@ -229,43 +296,53 @@ def item_details(item_id):
         if not session.get("user_id"):
             return redirect(url_for("login"))
 
-        item_fields = (
-            "photo",
-            "name",
-            "desc",
-            "price_h",
-            "price_d",
-            "price_w",
-            "price_m",
-            "owner_id"
-        )
-        item_data = items_manager.get_item_data(item_id, item_fields)
+        # Данные о предмете
+        item = models.Item.query.filter_by(id=item_id).first()
+        if not item:
+            return "Item not found", 404
 
-        owner_id = item_data["owner_id"]
-        participant_fields = (
-            "first_name",
-            "last_name",
-            "login"
-        )
-        item_owner_data = users_manager.get_user_data(owner_id, participant_fields)
+        item_data = {"photo": item.photo,
+                     "name": item.name,
+                     "desc": item.desc,
+                     "price_h": item.price_h,
+                     "price_d": item.price_d,
+                     "price_w": item.price_w,
+                     "price_m": item.price_m,
+                     "owner_id": item.owner_id}
 
-        contract_fields = (
-            "renter_id",
-            "date_end",
-            "is_available"
-        )
-        contract_data = contracts_manager.get_contract_data(item_id, contract_fields)
-        renter_id = contract_data["renter_id"]
-        item_renter_data = users_manager.get_user_data(renter_id, participant_fields)
+        # Данные владельца
+        owner = models.User.query.filter_by(id=item.owner_id).first()
+        item_owner_data = {
+            "first_name": owner.first_name,
+            "last_name": owner.last_name,
+            "login": owner.login,
+        } if owner else None
 
-        return render_template(
-            "item_details.html",
-            item=item_data,
-            contract=contract_data,
-            item_owner=item_owner_data,
-            item_renter=item_renter_data,
-            user=True
-        )
+        # Данные контракта
+        contract = models.Contract.query.filter_by(item_id=item_id).first()
+        contract_data = {
+            "renter_id": contract.renter_id,
+            "date_end": contract.date_end,
+            "is_available": contract.is_available,
+        } if contract else None
+
+        # Данные арендатора, если контракт существует
+        item_renter_data = None
+        if contract and contract.renter_id:
+            renter = models.User.query.filter_by(id=contract.renter_id).first()
+            item_renter_data = {
+                "first_name": renter.first_name,
+                "last_name": renter.last_name,
+                "login": renter.login,
+            } if renter else None
+
+        return render_template("item_details.html",
+                               item_id=item_id,
+                               item=item_data,
+                               contract=contract_data,
+                               item_owner=item_owner_data,
+                               item_renter=item_renter_data,
+                               user=True)
     if request.method == "POST":
         return "POST"
     if request.method == "DELETE":
@@ -285,31 +362,48 @@ def contract_details(contract_id):
     if request.method == "GET":
         if not session.get("user_id"):
             return redirect(url_for("login"))
-        print(contract_id)
-        contract_data = contracts_manager.get_contract_data(contract_id)
 
-        owner_id = contract_data["owner_id"]
-        renter_id = contract_data["renter_id"]
-        participant_fields = (
-            "first_name",
-            "last_name",
-            "login"
-        )
-        item_owner_data = users_manager.get_user_data(owner_id, participant_fields)
-        item_renter_data = users_manager.get_user_data(renter_id, participant_fields)
+        # Получаем контракт по contract_id
+        contract = models.Contract.query.get(contract_id)
 
-        item_id = contract_data["item_id"]
-        print(item_id)
-        item_data = items_manager.get_item_data(item_id, "name")
+        if not contract:
+            return flash_and_redirect("error-message", "Контракт не найден", "/contracts")
 
-        return render_template(
-            "contract_details.html",
-            contract=contract_data,
-            item=item_data,
-            item_owner=item_owner_data,
-            item_renter=item_renter_data,
-            user=True
-        )
+        owner_id = contract.owner_id
+        renter_id = contract.renter_id
+
+        item_owner = models.User.query.get(owner_id)
+        item_renter = models.User.query.get(renter_id)
+
+        item = models.Item.query.get(contract.item_id)
+
+        # Данные контракта
+        contract_data = {"id": contract.id,
+                         "start_date": contract.start_date,
+                         "end_date": contract.end_date,
+                         "is_available": contract.is_available,
+                         "owner_id": contract.owner_id,
+                         "renter_id": contract.renter_id,
+                         "item_id": contract.item_id}
+
+        # Данные владельца
+        item_owner_data = {"first_name": item_owner.first_name,
+                           "last_name": item_owner.last_name,
+                           "login": item_owner.login}
+
+        # Данные арендатора
+        item_renter_data = {"first_name": item_renter.first_name,
+                            "last_name": item_renter.last_name,
+                            "login": item_renter.login}
+
+        item_data = {"name": item.name}
+
+        return render_template("contract_details.html",
+                               contract=contract_data,
+                               item=item_data,
+                               item_owner=item_owner_data,
+                               item_renter=item_renter_data,
+                               user=True)
 
     if request.method == "POST":
         return f"POST {contract_id}"
@@ -319,28 +413,54 @@ def contract_details(contract_id):
 
 @app.route("/search", methods=["GET"])
 def search():
-    profile_card_data = get_data_for_profile_card(users_manager, contracts_manager)
-    item_card_data = get_data_for_item_card(items_manager, contracts_manager)
+    search_query = request.args.get("q", "").lower()
 
-    # Получаем поисковый запрос из URL
-    search_query = request.args.get("q", "").lower()  # Получаем запрос из строки запроса
+    # Подходящие профили
+    founded_profiles = models.User.query.filter(
+        models.User.login.ilike(f"%{search_query}%") |
+        models.User.first_name.ilike(f"%{search_query}%") |
+        models.User.last_name.ilike(f"%{search_query}%")
+    ).all()
 
-    # Ищем подходящие профили
-    founded_profiles = [
-        profile for profile in profile_card_data
-        if search_query in profile["login"].lower() or
-           search_query in profile["first_name"].lower() or
-           search_query in profile["last_name"].lower()
+    # Подходящие предметы
+    founded_items = models.Item.query.filter(
+        models.Item.name.ilike(f"%{search_query}%") |
+        models.Item.desc.ilike(f"%{search_query}%")
+    ).all()
+
+    # Данные для профилей
+    profile_card_data = [
+        {
+            "id": user.id,
+            "login": user.login,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "avatar": user.avatar,
+            "register_date": user.register_date,
+            "owner_contracts": models.Contract.query.filter_by(owner_id=user.id).count(),
+            "renter_contracts": models.Contract.query.filter_by(renter_id=user.id).count(),
+        }
+        for user in founded_profiles
     ]
 
-    # Ищем подходящие предметы
-    founded_items = [
-        item for item in item_card_data
-        if search_query in item["name"].lower() or
-           search_query in item["desc"].lower()
+    # Данные для предметов
+    item_card_data = [
+        {
+            "id": item.id,
+            "photo": item.photo,
+            "name": item.name,
+            "desc": item.desc,
+            "price_h": item.price_h,
+            "price_d": item.price_d,
+            "price_w": item.price_w,
+            "price_m": item.price_m,
+            "owner_id": item.owner_id,
+            "owner_name": item.owner.first_name + " " + item.owner.last_name,
+        }
+        for item in founded_items
     ]
 
-    return render_template("search.html", users=founded_profiles, items=founded_items)
+    return render_template("search.html", users=profile_card_data, items=item_card_data)
 
 
 @app.route("/complain", methods=["GET", "POST"])
@@ -352,10 +472,37 @@ def complain():
         return "POST"
 
 
+@app.route("/compare/add", methods=["GET"])
+def add_to_compare():
+    item_id = request.args.get("item_id")
+    compare_list = request.args.get("items", "")
+    next_url = request.args.get("next", url_for("item_details", item_id=item_id))
+
+    if compare_list:
+        compare_list = compare_list.split(",")
+    else:
+        compare_list = []
+
+    if item_id in compare_list:
+        compare_list.remove(item_id)
+    else:
+        compare_list.append(item_id)
+
+    return redirect(url_for("compare", item_id=item_id, items=",".join(compare_list), next=next_url))
+
+
 @app.route("/compare", methods=["GET", "POST", "PUT"])
 def compare():
-    if request.method == "POST":
-        return render_template("compare.html")
+    if request.method == "GET":
+        compare_list = request.args.get("items", "")
+        items_to_compare = []
+
+        # if compare_list:
+        #     for item_id in compare_list.split(","):
+        #         item_data = # TODO
+        #         items_to_compare.append(item_data)
+        return render_template("compare.html", items=items_to_compare)
+
     if request.method == "POST":
         return "POST"
     if request.method == "PUT":
