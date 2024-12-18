@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Numeric, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Numeric, Text, types
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -17,6 +17,7 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False)
     avatar = Column(String(255))
     register_date = Column(Integer)
+    compare_items = Column(types.JSON, default=[], nullable=True)
 
     items = relationship("Item", backref="owner_user")
 
@@ -43,10 +44,10 @@ class Item(Base):
     photo = Column(String(255))
     name = Column(String(255), nullable=False)
     desc = Column(Text)
-    price_h = Column(Numeric(10, 2))
-    price_d = Column(Numeric(10, 2))
-    price_w = Column(Numeric(10, 2))
-    price_m = Column(Numeric(10, 2))
+    price_h = Column(Numeric(10, 2), nullable=True)
+    price_d = Column(Numeric(10, 2), nullable=True)
+    price_w = Column(Numeric(10, 2), nullable=True)
+    price_m = Column(Numeric(10, 2), nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", backref="owner_items")

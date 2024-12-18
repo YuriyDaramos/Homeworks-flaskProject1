@@ -4,24 +4,39 @@
 
 {% block content %}
     <h2>Сравнение товаров</h2>
+
     <div class="compare-items">
         {% for item in items %}
-            <div class="compare-item">
-                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Фото товара">
-                <h3>{{ item.name }}</h3>
-                <p>{{ item.desc }}</p>
-                <table>
-                    <tr>
-                        <td>Час:</td>
-                        <td>{{ item.price_h }}</td>
-                    </tr>
-                    <tr>
-                        <td>День:</td>
-                        <td>{{ item.price_d }}</td>
-                    </tr>
-                    <!-- Добавьте остальные параметры для сравнения -->
-                </table>
-            </div>
+            <a href="{{ url_for('item_details', item_id=item.id) }}" class="compare-item">
+                <div class="compare-item-content">
+                    <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Фото товара">
+                    <h3>{{ item.name }}</h3>
+                    <p>{{ item.desc }}</p>
+                    <table>
+                        <tr>
+                            <td>Час:</td>
+                            <td>{{ item.price_h }}</td>
+                        </tr>
+                        <tr>
+                            <td>День:</td>
+                            <td>{{ item.price_d }}</td>
+                        </tr>
+                        <!-- Остальные параметры для сравнения -->
+                    </table>
+                </div>
+            </a>
         {% endfor %}
     </div>
+
+        <!-- Кнопка "Очистить список сравнения" -->
+    <form action="{{ url_for('compare') }}" method="POST" class="clear-compare-form">
+        <button type="submit" class="clear-compare-list">
+            Очистить список сравнения
+        </button>
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <span class="result">{{ messages[0] }}</span>
+                {% endif %}
+        {% endwith %}
+    </form>
 {% endblock %}

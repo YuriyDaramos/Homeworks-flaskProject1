@@ -1,11 +1,9 @@
 from datetime import datetime
 from functools import wraps
 from random import randint
-
 from flask import render_template, url_for, session, request, redirect, flash, Flask
 
-from modules.utils import flash_and_redirect
-
+from modules.utils import flash_and_redirect, parse_price
 from database import DATABASE_URL, db_session, init_db
 import models
 
@@ -231,28 +229,33 @@ def add_item():
 
     if request.method == "POST":
 
-        if not request.form["name"]:
-            return flash_and_redirect("name", "Название предмета не должно быть пустым", "/items")
-        if not request.form["photo"]:
-            return flash_and_redirect("photo", "Фото предмета не должно быть пустым", "/items")
-        if not request.form["desc"]:
-            return flash_and_redirect("desc", "Описание предмета не должно быть пустым", "/items")
+        # Проверка обязательных полей
+        required_fields = {"name": "Название предмета не должно быть пустым",
+                           "photo": "Фото предмета не должно быть пустым",
+                           "desc": "Описание предмета не должно быть пустым"}
+        for field, error_message in required_fields.items():
+            if not request.form.get(field):
+                return flash_and_redirect(field, error_message, "/items")
 
         owner_id = session.get("user_id")
 
-        item = models.Item(name=request.form["name"],
-                           photo=request.form["photo"],
-                           desc=request.form.get("desc"),
-                           price_h=request.form.get("price_h"),
-                           price_d=request.form.get("price_d"),
-                           price_w=request.form.get("price_w"),
-                           price_m=request.form.get("price_m"),
-                           owner_id=owner_id)
+        price_h = parse_price(request.form.get('price_h', ''))
+        price_d = parse_price(request.form.get('price_d', ''))
+        price_w = parse_price(request.form.get('price_w', ''))
+        price_m = parse_price(request.form.get('price_m', ''))
 
-        db_session.add(item)
+        new_item = models.Item(name=request.form["name"],
+                               photo=request.form["photo"],
+                               desc=request.form.get("desc"),
+                               price_h=price_h,
+                               price_d=price_d,
+                               price_w=price_w,
+                               price_m=price_m,
+                               owner_id=owner_id)
+        db_session.add(new_item)
         db_session.commit()
 
-        item_id = item.id
+        item_id = new_item.id
 
         # Параметр, чтобы показать кнопку добавления фото
         show_add_photo_button = False
@@ -336,12 +339,18 @@ def item_details(item_id):
                 "login": renter.login,
             } if renter else None
 
+        # Список для сравнения
+        user_id = session.get("user_id")
+        user = models.User.query.filter_by(id=user_id).first()
+        compare_list = user.compare_items or []
+
         return render_template("item_details.html",
                                item_id=item_id,
                                item=item_data,
                                contract=contract_data,
                                item_owner=item_owner_data,
                                item_renter=item_renter_data,
+                               compare_list=compare_list,
                                user=True)
     if request.method == "POST":
         return "POST"
@@ -473,41 +482,60 @@ def complain():
 
 
 @app.route("/compare/add", methods=["GET"])
+@login_required
 def add_to_compare():
+    MAX_ITEMS_TO_COMPARE = 5
+
+    # item_id из текущего URL предмета
     item_id = request.args.get("item_id")
-    compare_list = request.args.get("items", "")
-    next_url = request.args.get("next", url_for("item_details", item_id=item_id))
 
-    if compare_list:
-        compare_list = compare_list.split(",")
-    else:
-        compare_list = []
+    user_id = session.get("user_id")
+    user = models.User.query.filter_by(id=user_id).first()
 
+    compare_list = user.compare_items or []
+
+    # Добавляем или удаляем item_id из списка по той же кнопке
     if item_id in compare_list:
         compare_list.remove(item_id)
     else:
         compare_list.append(item_id)
+        if len(compare_list) > MAX_ITEMS_TO_COMPARE:
+            flash(f"Нельзя сравнивать одновременно более {MAX_ITEMS_TO_COMPARE} товаров", "result")
+            return redirect(request.referrer)
 
-    return redirect(url_for("compare", item_id=item_id, items=",".join(compare_list), next=next_url))
+    models.User.query.filter_by(id=user_id).update({"compare_items": compare_list})     # Особенности работы с JSON
+    db_session.commit()
+
+    flash("Список для сравнения обновлен.", "result")
+    return redirect(url_for("item_details", item_id=item_id, items=",".join(compare_list)))
 
 
 @app.route("/compare", methods=["GET", "POST", "PUT"])
+@login_required
 def compare():
     if request.method == "GET":
-        compare_list = request.args.get("items", "")
-        items_to_compare = []
+        user_id = session.get("user_id")
+        user = models.User.query.filter_by(id=user_id).first()
 
-        # if compare_list:
-        #     for item_id in compare_list.split(","):
-        #         item_data = # TODO
-        #         items_to_compare.append(item_data)
-        return render_template("compare.html", items=items_to_compare)
+        compare_list = user.compare_items or []
+
+        # Все товары по одному запросу
+        items_data_to_compare = models.Item.query.filter(models.Item.id.in_(compare_list)).all()
+
+        return render_template("compare.html", items=items_data_to_compare)
 
     if request.method == "POST":
-        return "POST"
+        user_id = session.get("user_id")
+        user = models.User.query.get(user_id)
+        if user:
+            compare_list = []
+            models.User.query.filter_by(id=user_id).update({"compare_items": compare_list})
+            db_session.commit()
+            flash("Список очищен", "result")
+        return render_template("compare.html")
     if request.method == "PUT":
         return "PUT"
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0")
