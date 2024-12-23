@@ -4,7 +4,33 @@
 
 {% block content %}
     <div class="form-container">
-        <p>Ваша история поиска.</p>
-        <p style="font-weight: bold;">ШАБЛОН СТРАНИЦЫ</p>
+        <h2>Ваша история поиска</h2>
+
+        <!-- Проверка, если история поиска существует -->
+        {% if search_history %}
+            <table class="search-history-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Запрос</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in search_history %}
+                        <tr>
+                            <td>{{ record.timestamp }}</td>
+                            <td>
+                                <!-- Кликабельный запрос для нового поиска -->
+                                <a href="{{ url_for('search') }}?q={{ record.search_text }}" class="search-query-link">
+                                    {{ record.search_text }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Ваша история поиска пуста.</p>
+        {% endif %}
     </div>
 {% endblock %}

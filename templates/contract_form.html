@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать контракт{% endblock %}
+
+{% block content %}
+    <h2 class="title-create-contract-form">Создать новый контракт</h2>
+    <form action="/contracts/new" method="post" class="create-contract-form">
+        <!-- Передаем ID предмета через скрытое поле -->
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+
+        <div class="form-group">
+            <label for="owner_id">Арендодатель:</label>
+            <input type="text" id="owner_id" name="owner_id" value="{{ owner.first_name }} {{ owner.last_name }} ({{ owner.login }})" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="renter_id">Арендатор:</label>
+            <input type="text" id="renter_id" name="renter_id" value="{{ renter.first_name }} {{ renter.last_name }} ({{ renter.login }})" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="item_id">Предмет аренды:</label>
+            <input type="text" id="item_id" name="item_id" value="{{ item.name }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="start_date">Дата начала аренды:<span class="required">*</span></label>
+            <input type="date" id="start_date" name="start_date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="end_date">Дата окончания аренды:<span class="required">*</span></label>
+            <input type="date" id="end_date" name="end_date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="contract_text">Текст контракта:<span class="required">*</span></label>
+            <textarea id="contract_text" name="contract_text" required> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</textarea>
+        </div>
+
+        <button type="submit" class="button-book-item">Создать контракт и уведомить владельца</button>
+    </form>
+{% endblock %}

@@ -8,6 +8,9 @@
 @import url('modules/items.css');
 @import url('modules/contract.css');
 @import url('modules/compare.css');
+@import url('modules/search_history.css');
+@import url('modules/add_item.css');
+@import url('modules/contract_form.css');
 
 /* Основной фон страницы */
 body {

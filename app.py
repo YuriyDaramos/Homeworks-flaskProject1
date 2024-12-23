@@ -3,7 +3,7 @@ from functools import wraps
 from random import randint
 from flask import render_template, url_for, session, request, redirect, flash, Flask
 
-from modules.utils import flash_and_redirect, parse_price
+from modules.utils import flash_and_redirect, parse_price, send_contract_notification
 from database import DATABASE_URL, db_session, init_db
 import models
 
@@ -358,6 +358,59 @@ def item_details(item_id):
         return f"DELETE {item_id}"
 
 
+@app.route("/contracts/new", methods=["GET", "POST"])
+@login_required
+def create_contract():
+    if request.method == "GET":
+        item_id = request.args.get('item_id')
+
+        item = models.Item.query.get(item_id)
+        owner = models.User.query.get(item.owner_id)
+        renter = models.User.query.get(session.get("user_id"))
+
+        return render_template("contract_form.html",
+                               item=item,
+                               owner=owner,
+                               renter=renter,
+                               user=session.get("user_id"))
+    if request.method == "POST":
+
+        item_id = request.form.get('item_id')  # Получаем item_id из скрытого поля
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        contract_text = request.form.get('contract_text')
+
+        item = models.Item.query.get(item_id)
+        user_id = session.get("user_id")
+
+        existing_contract = models.Contract.query.filter_by(item_id=item_id).first()
+
+        if existing_contract:
+            existing_contract.date_start = start_date
+            existing_contract.date_end = end_date
+            existing_contract.text = contract_text
+            existing_contract.renter_id = user_id
+            existing_contract.is_available = False
+            db_session.commit()
+        else:
+            new_contract = models.Contract(
+                item_id=item_id,
+                owner_id=item.owner_id,
+                renter_id=user_id,
+                date_start=start_date,
+                date_end=end_date,
+                text=contract_text,
+                is_available=0
+            )
+            db_session.add(new_contract)
+            db_session.commit()
+
+        send_contract_notification()
+
+        flash("Товар забронирован. Владелец будет уведомлен по почте.", "success")
+        return redirect(url_for('item_details', item_id=item_id))
+
+
 @app.route("/contracts/random_contract", methods=["GET"])
 @login_required
 def contracts():
@@ -387,9 +440,8 @@ def contract_details(contract_id):
         item = models.Item.query.get(contract.item_id)
 
         # Данные контракта
-        contract_data = {"id": contract.id,
-                         "start_date": contract.start_date,
-                         "end_date": contract.end_date,
+        contract_data = {"start_date": contract.date_start,
+                         "end_date": contract.date_end,
                          "is_available": contract.is_available,
                          "owner_id": contract.owner_id,
                          "renter_id": contract.renter_id,
@@ -422,6 +474,7 @@ def contract_details(contract_id):
 
 @app.route("/search", methods=["GET"])
 def search():
+
     search_query = request.args.get("q", "").lower()
 
     # Подходящие профили
@@ -469,7 +522,28 @@ def search():
         for item in founded_items
     ]
 
+    # Сохранение в истории поиска, если пользователь авторизован
+    user_id = session.get("user_id")
+    if user_id:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        new_search = models.SearchHistory(
+            user=user_id,
+            search_text=search_query,
+            timestamp=timestamp
+        )
+        db_session.add(new_search)
+        db_session.commit()
+
     return render_template("search.html", users=profile_card_data, items=item_card_data)
+
+
+@app.route("/search_history", methods=["GET"])
+@login_required
+def search_history():
+    user_id = session.get("user_id")
+    search_history = models.SearchHistory.query.filter_by(user=user_id).order_by(
+        models.SearchHistory.timestamp.desc()).limit(10).all()
+    return render_template("search_history.html", search_history=search_history)
 
 
 @app.route("/complain", methods=["GET", "POST"])

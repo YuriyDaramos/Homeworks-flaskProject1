@@ -53,8 +53,20 @@
                     <span class="result">{{ messages[0] }}</span>
                 {% endif %}
             {% endwith %}
-
         </form>
+
+        {% if contract.is_available %}
+            <form action="{{ url_for('create_contract') }}" method="GET" class="book-item">
+                <input type="hidden" name="item_id" value="{{ item_id }}">  <!-- передаем ID предмета -->
+                    <button type="submit" class="button-book-item">
+                    Арендовать предмет
+                    </button>
+            </form>
+        {% else %}
+            <div>Товар недоступен к бронированию.</div>
+        {% endif %}
+
+
     {% else %}
         <div class="no-data">Товар не найден или данные недоступны.</div>
     {% endif %}

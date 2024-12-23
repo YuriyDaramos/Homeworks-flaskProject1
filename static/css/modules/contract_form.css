@@ -1,0 +1,80 @@
+/* Стили для заголовка "Создать новый контракт" */
+.title-create-contract-form {
+    text-align: center; /* Выравнивание текста по центру */
+    color: #EEEEEE; /* Белый цвет текста */
+    font-size: 1.5em; /* Размер шрифта */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+
+/* Стили для формы создания контракта */
+.create-contract-form {
+    background-color: #242629; /* Темный фон формы */
+    padding: 20px; /* Внутренние отступы */
+    border-radius: 5px; /* Скругленные углы */
+    max-width: 600px; /* Максимальная ширина формы */
+    margin: 0 auto; /* Центрирование */
+}
+
+/* Стили для подписей к полям */
+.create-contract-form label {
+    color: #EEEEEE; /* Светлый цвет текста */
+    display: block; /* Размещение каждой подписи на отдельной строке */
+    margin-bottom: 5px; /* Отступ снизу */
+    font-weight: bold; /* Выделение текста */
+}
+
+/* Стили для групп полей */
+.create-contract-form .form-group {
+    margin-bottom: 15px; /* Отступ между группами */
+}
+
+/* Стили для текстовых полей, числовых полей и текстовых областей */
+.create-contract-form input[type="text"],
+.create-contract-form input[type="date"],
+.create-contract-form textarea {
+    width: 100%; /* Растягивание на всю ширину контейнера */
+    padding: 10px; /* Внутренние отступы */
+    border-radius: 5px; /* Скругленные углы */
+    border: 1px solid #CCCCCC; /* Светлая рамка */
+    background-color: #3A3B3F; /* Темный фон */
+    color: #EEEEEE; /* Светлый текст */
+    box-sizing: border-box; /* Включение отступов и рамки в ширину */
+}
+
+/* Стили для кнопки отправки формы */
+.create-contract-form button[type="submit"] {
+    color: #EEEEEE; /* Светлый цвет текста */
+    background-color: #812223; /* Основной цвет кнопки */
+    padding: 10px 15px; /* Внутренние отступы */
+    font-weight: bold; /* Жирный текст */
+    font-size: 1em; /* Размер текста */
+    border: none; /* Убираем рамку */
+    border-radius: 4px; /* Скругленные углы */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s ease; /* Плавный переход цвета */
+}
+
+/* Стили для кнопки при наведении */
+.create-contract-form button[type="submit"]:hover {
+    background-color: #9C3A3A; /* Цвет при наведении */
+}
+
+/* Стили для обязательных полей */
+.create-contract-form span.required {
+    color: red; /* Красный цвет */
+}
+
+/* Стили для сообщений об ошибке */
+.create-contract-form span.error-message {
+    color: #C42A2E; /* Красный цвет текста */
+    font-size: 0.9em; /* Уменьшенный размер текста */
+    display: block; /* На отдельной строке */
+    margin: 5px 0; /* Отступы сверху и снизу */
+}
+
+/* Стили для текстовой области */
+.create-contract-form textarea {
+    min-height: 100px; /* Минимальная высота */
+    resize: vertical; /* Изменение размера только по вертикали */
+}

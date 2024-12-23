@@ -242,3 +242,56 @@ span.error-message {
 .clear-compare-form {
     display: inline-block;
 }
+
+/* Стили для формы бронирования */
+.book-item {
+    margin-top: 20px; /* Отступ сверху */
+}
+
+/* Кнопка "Арендовать предмет" */
+.button-book-item {
+    color: #EEEEEE; /* Цвет текста */
+    background-color: #812223; /* Основной цвет кнопки */
+    padding: 8px 12px; /* Внутренние отступы */
+    font-weight: bold; /* Жирный текст */
+    font-size: 1em; /* Размер текста */
+    border: none; /* Убираем границы */
+    border-radius: 4px; /* Радиус скругления */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Плавные эффекты */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+/* Цвет кнопки при наведении */
+.button-book-item:hover {
+    background-color: #9C3A3A; /* Более светлый красный */
+    transform: scale(1.05); /* Легкое увеличение */
+}
+
+/* Кнопка "Сообщить о доступности товара" */
+.button-notify-me {
+    color: #EEEEEE; /* Цвет текста */
+    background-color: #3A3A3A; /* Основной цвет кнопки */
+    padding: 8px 12px; /* Внутренние отступы */
+    font-weight: bold; /* Жирный текст */
+    font-size: 1em; /* Размер текста */
+    border: none; /* Убираем границы */
+    border-radius: 4px; /* Радиус скругления */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Плавные эффекты */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+/* Цвет кнопки при наведении */
+.button-notify-me:hover {
+    background-color: #5B5F62; /* Более светлый серый */
+    transform: scale(1.05); /* Легкое увеличение */
+}
+
+/* Общий стиль для сообщений */
+.book-item .result {
+    font-size: 0.9em; /* Размер текста */
+    color: #4CAF50; /* Зеленый цвет для успешного сообщения */
+    margin-top: 10px; /* Отступ сверху */
+    display: block; /* Отображение как блока */
+}
