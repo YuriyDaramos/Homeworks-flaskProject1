@@ -3,12 +3,11 @@ from functools import wraps
 from random import randint
 from flask import render_template, url_for, session, request, redirect, flash, Flask
 
+import celery_tasks
 from modules.utils import flash_and_redirect, parse_price
 from database import DATABASE_URL, db_session, init_db
 import models
 
-from celery_config import make_celery
-from tasks import send_contract_notification_task
 
 # Инициализация и настройки Flask
 app = Flask(__name__)
@@ -16,17 +15,9 @@ app.secret_key = "12345"
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Настройки Celery
-app.config.update(
-    CELERY_BROKER_URL='redis://localhost:6379/0',  # Адрес брокера сообщений (Redis)
-    CELERY_RESULT_BACKEND='redis://localhost:6379/0'  # Где хранить результаты задач
-)
 
 # Инициализация базы данных
 init_db()
-
-# Инициализация Celery
-celery = make_celery(app)
 
 
 def login_required(func):
@@ -406,7 +397,7 @@ def create_contract():
             existing_contract.renter_id = user_id
             existing_contract.is_available = False
             db_session.commit()
-            send_contract_notification_task.apply_async(args=[existing_contract.item_id])
+            message = celery_tasks.send_contract_notification(existing_contract.item_id)
         else:
             new_contract = models.Contract(
                 item_id=item_id,
@@ -419,9 +410,9 @@ def create_contract():
             )
             db_session.add(new_contract)
             db_session.commit()
-            send_contract_notification_task.apply_async(args=[item_id])
+            message = celery_tasks.send_contract_notification.apply_async(item_id)
 
-        flash("Товар забронирован. Владелец будет уведомлен по почте.", "success")
+        flash(message, "success")
         return redirect(url_for('item_details', item_id=item_id))
 
 
