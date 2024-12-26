@@ -3,50 +3,50 @@
 {% block title %}Карточка товара {{ item_id }}{% endblock %}
 
 {% block content %}
-    {% if user %}
-        <div class="item-image">
-            <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Image" width="300" height="300">
-        </div>
+    <div class="item-image">
+        <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Image" width="300" height="300">
+    </div>
 
-        <div class="item-content">
-            <h2>Карточка товара {{ item_id }}</h2>
-            <div class="item-info-field"><strong>Название:</strong> <span>{{ item.name }}</span></div>
-            <div class="item-info-field"><strong>Владелец:</strong> <span>{{ item_owner.first_name }} {{ item_owner.last_name }} ({{ item_owner.login }})</span></div>
-            {% if contract.is_available == 'False' %}
-                <div class="item-info-field"><strong>Арендовано:</strong> <span>{{ item_renter.first_name }} {{ item_renter.last_name }} ({{ item_renter.login }})</span></div>
-                <div class="item-info-field"><strong>Аренда истекает:</strong> <span>{{ contract.date_end }}</span></div>
-            {% endif %}
-            <div class="item-info-field"><strong>Описание:</strong> <span>{{ item.desc }}</span></div>
-            <div class="item-info-field"><strong>Дополнительные данные:</strong> <span>[Зарезервировано]</span></div>
+    <div class="item-content">
+        <h2>Карточка товара {{ item_id }}</h2>
+        <div class="item-info-field"><strong>Название:</strong> <span>{{ item.name }}</span></div>
+        <div class="item-info-field"><strong>Владелец:</strong> <span>{{ item_owner.first_name }} {{ item_owner.last_name }} ({{ item_owner.login }})</span></div>
+        {% if contract.is_available == 'False' %}
+            <div class="item-info-field"><strong>Арендовано:</strong> <span>{{ item_renter.first_name }} {{ item_renter.last_name }} ({{ item_renter.login }})</span></div>
+            <div class="item-info-field"><strong>Аренда истекает:</strong> <span>{{ contract.date_end }}</span></div>
+        {% endif %}
+        <div class="item-info-field"><strong>Описание:</strong> <span>{{ item.desc }}</span></div>
+        <div class="item-info-field"><strong>Дополнительные данные:</strong> <span>[Зарезервировано]</span></div>
 
-            <span class="item-price-field">Цена аренды:</span>
-            {% if item.price_h %}
-            <div class="item-price-field"><strong>за час:</strong> <span>{{ item.price_h }}</span></div>
-            {% endif %}
-            {% if item.price_d %}
-                <div class="item-price-field"><strong>за день:</strong> <span>{{ item.price_d }}</span></div>
-            {% endif %}
-            {% if item.price_w %}
-                <div class="item-price-field"><strong>за неделю:</strong> <span>{{ item.price_w }}</span></div>
-            {% endif %}
-            {% if item.price_m %}
-                <div class="item-price-field"><strong>за месяц:</strong> <span>{{ item.price_m }}</span></div>
-            {% endif %}
-        </div>
+        <span class="item-price-field">Цена аренды:</span>
+        {% if item.price_h %}
+        <div class="item-price-field"><strong>за час:</strong> <span>{{ item.price_h }}</span></div>
+        {% endif %}
+        {% if item.price_d %}
+            <div class="item-price-field"><strong>за день:</strong> <span>{{ item.price_d }}</span></div>
+        {% endif %}
+        {% if item.price_w %}
+            <div class="item-price-field"><strong>за неделю:</strong> <span>{{ item.price_w }}</span></div>
+        {% endif %}
+        {% if item.price_m %}
+            <div class="item-price-field"><strong>за месяц:</strong> <span>{{ item.price_m }}</span></div>
+        {% endif %}
+    </div>
 
+    <div class="item-actions">
         <form action="{{ url_for('add_to_compare') }}" method="GET" class="compare-form-item">
             <input type="hidden" name="item_id" value="{{ item_id }}">  <!-- передаем ID предмета -->
             <input type="hidden" name="items" value="{{ request.args.get('items', '') }}">  <!-- сохраняем текущий список для сравнения -->
 
-                {% if item_id in compare_list %}
-                    <button type="submit" class="compare-button-remove">
-                    Убрать из сравнения
-                    </button>
-                {% else %}
-                    <button type="submit" class="compare-button-add">
-                    Добавить к сравнению
-                    </button>
-                {% endif %}
+            {% if item_id in compare_list %}
+                <button type="submit" class="compare-button-remove">
+                Убрать из сравнения
+                </button>
+            {% else %}
+                <button type="submit" class="compare-button-add">
+                Добавить к сравнению
+                </button>
+            {% endif %}
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -66,8 +66,23 @@
             <div>Товар недоступен к бронированию.</div>
         {% endif %}
 
+        {% if item_owner.id == session['user_id'] %}
+            <br><button class="btn btn-primary edit-profile-btn" onclick="window.location.href='{{ url_for('item_edit', item_id=item_id) }}'">Редактировать товар</button>
+        {% endif %}
 
-    {% else %}
-        <div class="no-data">Товар не найден или данные недоступны.</div>
-    {% endif %}
+        <!-- Кнопка для добавления в избранное -->
+        <form action="{{ url_for('favourites') }}" method="POST" class="fav-form-item">
+            <input type="hidden" name="item_id" value="{{ item_id }}">
+            {% if item_id in favourite_items %}
+                <button type="submit" class="fav-button-remove">
+                Убрать из избранного
+                </button>
+            {% else %}
+                <button type="submit" class="fav-button-add">
+                Добавить в избранное
+                </button>
+            {% endif %}
+        </form>
+    </div>
+
 {% endblock %}

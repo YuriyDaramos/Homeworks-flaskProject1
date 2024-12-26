@@ -3,11 +3,13 @@
 {% block title %}Мой профиль{% endblock %}
 
 {% block content %}
-        <div class="profile-avatar">
-            <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар" width="240" height="240">
-        </div>
+    <div class="profile-main-container">
 
         <div class="profile-content">
+            <div class="profile-avatar">
+                <img src="{{ url_for('static', filename='images/default_avatar.png') }}" alt="Аватар" width="240" height="240">
+            </div>
+
             <h2>Профиль пользователя</h2>
             <div class="profile-field"><strong>Логин:</strong> <span>{{ user.login }}</span></div>
             <div class="profile-field"><strong>Имя:</strong> <span>{{ user.first_name }}</span></div>
@@ -17,23 +19,122 @@
             <div class="profile-field"><strong>Контактный email:</strong> <span>{{ user.email }}</span></div>
             <div class="profile-field"><strong>Паспортные данные:</strong> <span>[Зарезервировано]</span></div>
 
-            <div class="profile-actions">
-                <a href="{{ url_for('profile_edit') }}" class="btn btn-primary">Редактировать профиль</a>
-            </div>
-
+            {% if user.id == session['user_id'] %}
+                <div class="profile-actions">
+                    <button class="btn btn-primary edit-profile-btn" onclick="window.location.href='{{ url_for('profile_edit') }}'">Редактировать профиль</button>
+                </div>
+            {% endif %}
         </div>
 
         <div class="profile-right-bar">
+            <!-- Товары пользователя -->
+            {% if user_items %}
             <div class="profile-my-items">
-            <h3>Мои товары</h3>
+                <h3>Товары пользователя</h3>
+                <div class="profile-items-container">
+                    {% for item in user_items %}
+                        <a href="{{ url_for('item_details', item_id=item.id) }}" class="profile-item-card">
+                            <div class="profile-item-photo">
+                                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Photo">
+                            </div>
+                            <div class="profile-item-details">
+                                <div class="profile-item-name">{{ item.name }}</div>
+                                <div class="profile-item-desc">{{ item.desc }}</div>
+                                <table class="profile-price-table">
+                                    <tr>
+                                        <th>Час</th>
+                                        <th>День</th>
+                                        <th>Неделя</th>
+                                        <th>Месяц</th>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ item.price_h }}</td>
+                                        <td>{{ item.price_d }}</td>
+                                        <td>{{ item.price_w }}</td>
+                                        <td>{{ item.price_m }}</td>
+                                    </tr>
+                                </table>
+                                <div class="profile-item-data">
+                                    {% if item.is_available %}
+                                        Доступен к аренде
+                                    {% else %}
+                                        Не доступен
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
 
+            <!-- Арендованные товары -->
+            {% if rented_items %}
             <div class="profile-rented-items">
-            <h3>Арендованные товары</h3>
+                <h3>Арендованные товары</h3>
+                <div class="profile-items-container">
+                    {% for item in rented_items %}
+                        <a href="{{ url_for('item_details', item_id=item.id) }}" class="profile-item-card">
+                            <div class="profile-item-photo">
+                                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Photo">
+                            </div>
+                            <div class="profile-item-details">
+                                <div class="profile-item-name">{{ item.name }}</div>
+                                <div class="profile-item-desc">{{ item.desc }}</div>
+                                <table class="profile-price-table">
+                                    <tr>
+                                        <th>Час</th>
+                                        <th>День</th>
+                                        <th>Неделя</th>
+                                        <th>Месяц</th>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ item.price_h }}</td>
+                                        <td>{{ item.price_d }}</td>
+                                        <td>{{ item.price_w }}</td>
+                                        <td>{{ item.price_m }}</td>
+                                    </tr>
+                                </table>
+                                <div class="profile-item-data">
+                                    {% if item.is_available %}
+                                        Доступен к аренде
+                                    {% else %}
+                                        Не доступен
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
 
+            <!-- Заключенные контракты -->
+            {% if user_contracts %}
             <div class="profile-contracts">
-            <h2>Заключенные контракты</h2>
+                <h3>Заключенные контракты</h3>
+                <div class="profile-contracts-container">
+                    {% for contract in user_contracts %}
+                        <a href="{{ url_for('contract_details', item_id=contract.item_id) }}" class="profile-contract-card">
+                            <div class="profile-contract-name">
+                                <p> {{ contract.item.name }}</p>    <!-- Название предмета -->
+                            </div>
+                            <div class="profile-contract-details">
+                                <p><strong>Дата начала:</strong> {{ contract.date_start }}</p>
+                                <p><strong>Дата окончания:</strong> {{ contract.date_end }}</p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
+
+            {% if not user_items and not rented_items and not user_contracts %}
+                <div class="profile-contracts">
+                    <p>Нет информации о предметах или заключенных контрактах</p>
+                </div>
+            {% endif %}
+
         </div>
+    </div>
 {% endblock %}

@@ -42,25 +42,25 @@
 
                 <span>Навигация</span>
                 {% if current_user.id %}
+                    <a href="{{ url_for('index') }}">Домашняя</a>
                     <a href="/profiles">Профили</a>
                     <a href="{{ url_for('profile', user_id=current_user.id) }}">Мой профиль</a>
                     <a href="/profiles/random_user">Профиль случайного пользователя</a>
-                    <a href="/profiles/search_history">История поиска</a>
-                    <a href="/profiles/favorites">Избранное</a>
+                    <a href="/search_history">История поиска</a>
+                    <a href="/favourites">Избранное</a>
                     <a href="/items/add">Добавить новый товар</a>
                     <a href="/items">Товары</a>
                     <a href="/items/random_item_details">Случайный товар</a>
                     <a href="/contracts/random_contract">Случайный контракт</a>
                     <a href="/search">Поиск</a>
-                    <a href="/complain">Жалоба</a>
                     <a href="/compare">Сравнить</a>
                 {% else %}
+                    <a href="{{ url_for('index') }}">Домашняя</a>
                     <a href="/profiles">Профили</a>
                     <a href="/profiles/random_user">Профиль случайного пользователя</a>
                     <a href="/items">Товары</a>
                     <a href="/items/random_item_details">Случайный товар</a>
                     <a href="/search">Поиск</a>
-                    <a href="/compare">Сравнить</a>
                 {% endif %}
             </div>
             <div class="content-area">

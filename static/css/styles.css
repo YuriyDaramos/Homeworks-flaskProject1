@@ -12,6 +12,10 @@
 @import url('modules/add_item.css');
 @import url('modules/contract_form.css');
 @import url('modules/proile_edit.css');
+@import url('modules/profile_cards.css');
+@import url('modules/item_edit.css');
+@import url('modules/favourites.css');
+
 
 /* Основной фон страницы */
 body {

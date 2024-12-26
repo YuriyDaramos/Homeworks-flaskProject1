@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать товар{% endblock %}
+
+{% block content %}
+    <div class="item-edit-content">
+        <!-- Блок для отображения флеш-сообщений -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('item_edit', item_id=item.id) }}">
+            <h2>Редактировать товар</h2>
+            
+            <div class="item-field">
+                <label for="name"><strong>Название:</strong></label>
+                <input type="text" id="name" name="name" class="item-edit-field" value="{{ item.name }}">
+            </div>
+
+            <div class="item-field">
+                <label for="description"><strong>Описание:</strong></label>
+                <textarea id="description" name="description" class="item-edit-field">{{ item.desc }}</textarea>
+            </div>
+
+            <div class="item-field">
+                <label for="price_h"><strong>Цена за час:</strong></label>
+                <input type="number" id="price_h" name="price_h" class="item-edit-field" value="{{ item.price_h }}">
+            </div>
+
+            <div class="item-field">
+                <label for="price_d"><strong>Цена за день:</strong></label>
+                <input type="number" id="price_d" name="price_d" class="item-edit-field" value="{{ item.price_d }}">
+            </div>
+
+            <div class="item-field">
+                <label for="price_w"><strong>Цена за неделю:</strong></label>
+                <input type="number" id="price_w" name="price_w" class="item-edit-field" value="{{ item.price_w }}">
+            </div>
+
+            <div class="item-field">
+                <label for="price_m"><strong>Цена за месяц:</strong></label>
+                <input type="number" id="price_m" name="price_m" class="item-edit-field" value="{{ item.price_m }}">
+            </div>
+
+            <div class="item-actions">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('item_details', item_id=item.id) }}'">Отмена</button>
+            </div>
+        </form>
+
+        <form method="POST" action="{{ url_for('item_edit', item_id=item.id) }}">
+            <input type="hidden" name="_method" value="DELETE">
+            <div class="item-actions-delete">
+                <button type="submit" class="btn btn-danger">Удалить товар</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

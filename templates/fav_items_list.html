@@ -1,0 +1,34 @@
+<div class="fav-items-container">
+    {% for item in favourite_items %}
+        <a href="{{ url_for('item_details', item_id=item.id) }}" class="fav-item-card">
+            <div class="fav-item-photo">
+                <img src="{{ url_for('static', filename='images/items/default_item.png') }}" alt="Фото">
+            </div>
+            <div class="fav-item-short-details">
+                <div class="fav-item-name">{{ item.name }}</div>
+                <div class="fav-item-short-desc">{{ item.desc }}</div>
+                <table class="fav-price-table">
+                    <tr>
+                        <th>Час</th>
+                        <th>День</th>
+                        <th>Неделя</th>
+                        <th>Месяц</th>
+                    </tr>
+                    <tr>
+                        <td>{{ item.price_h }}</td>
+                        <td>{{ item.price_d }}</td>
+                        <td>{{ item.price_w }}</td>
+                        <td>{{ item.price_m }}</td>
+                    </tr>
+                </table>
+                <div class="fav-item-data">
+                    {% if item.is_available %}
+                        Доступен к аренде
+                    {% else %}
+                        Не доступен
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>

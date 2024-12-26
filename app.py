@@ -1,20 +1,18 @@
 from datetime import datetime
 from functools import wraps
 from random import randint
-from flask import render_template, url_for, session, request, redirect, flash, Flask
+from flask import render_template, url_for, session, request, redirect, flash, Flask, abort
 
 import celery_tasks
 from modules.utils import flash_and_redirect, parse_price
 from database import DATABASE_URL, db_session, init_db
 import models
 
-
 # Инициализация и настройки Flask
 app = Flask(__name__)
 app.secret_key = "12345"
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 # Инициализация базы данных
 init_db()
@@ -179,7 +177,22 @@ def profile(user_id):
         user = models.User.query.filter_by(id=user_id).first()
         if user is None:
             return "Пользователь не найден", 404
-        return render_template("profile.html", user=user)
+
+        user_items = models.Item.query.filter_by(owner_id=user.id).all()
+
+        rented_items = models.Item.query.join(models.Contract).filter(
+            (models.Contract.owner_id == user.id) | (models.Contract.renter_id == user.id)
+        ).all()
+
+        user_contracts = models.Contract.query.filter(
+            (models.Contract.owner_id == user.id) | (models.Contract.renter_id == user.id)
+        ).all()
+
+        return render_template("profile.html",
+                               user=user,
+                               user_items=user_items,
+                               rented_items=rented_items,
+                               user_contracts=user_contracts)
 
 
 @app.route("/profile/edit", methods=["GET", "POST", "DELETE"])
@@ -205,13 +218,15 @@ def profile_edit():
             ).all()
             if user_contracts:
                 for contract in user_contracts:
-                    if contract.date_end > datetime.utcnow():
+                    date_now = datetime.utcnow().strftime("%Y-%m-%d")
+                    if contract.date_end > date_now:
                         flash("Необходимо дождаться окончания всех активных контрактов, прежде чем удалить профиль.",
                               "error")
                         return render_template("profile_edit.html", user=user)
 
             # db_session.delete(user)
             # db_session.commit()
+            print(f"{user_id} DELETED")
             session.pop("user_id", None)  # Причудливый способ разлогиниться специально для тестов
 
             return redirect(url_for("index"))
@@ -260,24 +275,34 @@ def random_profile():
     return redirect(url_for("profile", user_id=random_user_id))
 
 
-@app.route("/profiles/search_history", methods=["GET", "POST", "DELETE"])
+@app.route("/favourites", methods=["GET", "POST"])
 @login_required
-def profile_search_history():
+def favourites():
     if request.method == "GET":
-        return render_template("search_history.html")
-    if request.method == "POST":
-        return "POST"
-    if request.method == "DELETE":
-        return "DELETE"
+        user_id = session.get("user_id")
+        favourite_items = db_session.query(models.Item).join(models.Favourite).filter(
+            models.Favourite.user == user_id).all()
+        return render_template("favourites.html", favourite_items=favourite_items)
 
-
-@app.route("/profiles/favorites", methods=["GET", "POST"])
-@login_required
-def profiles_favorites():
-    if request.method == "GET":
-        return render_template("favorites.html")
     if request.method == "POST":
-        return "POST"
+        item_id = request.form.get('item_id')
+        user_id = session.get("user_id")
+        existing_fav = db_session.query(models.Favourite).filter_by(user=user_id, item=item_id).first()
+
+        if existing_fav:
+            # Если товар в избранном, удаляем его
+            db_session.delete(existing_fav)
+            db_session.commit()
+            flash("Товар удалён из избранного!", "success")
+        else:
+            # Если товара нет в избранном, добавляем его
+            new_fav = models.Favourite(user=user_id, item=item_id)
+            db_session.add(new_fav)
+            db_session.commit()
+            flash("Товар добавлен в избранное!", "success")
+
+        # Перенаправляем обратно на страницу избранного
+        return redirect(url_for("favourites"))
 
 
 @app.route("/items/add", methods=["GET", "POST"])
@@ -363,58 +388,85 @@ def item_details(item_id):
         if not item:
             return "Item not found", 404
 
-        item_data = {"photo": item.photo,
-                     "name": item.name,
-                     "desc": item.desc,
-                     "price_h": item.price_h,
-                     "price_d": item.price_d,
-                     "price_w": item.price_w,
-                     "price_m": item.price_m,
-                     "owner_id": item.owner_id}
-
         # Данные владельца
         owner = models.User.query.filter_by(id=item.owner_id).first()
-        item_owner_data = {
-            "first_name": owner.first_name,
-            "last_name": owner.last_name,
-            "login": owner.login,
-        } if owner else None
 
         # Данные контракта
         contract = models.Contract.query.filter_by(item_id=item_id).first()
-        contract_data = {
-            "renter_id": contract.renter_id,
-            "date_end": contract.date_end,
-            "is_available": contract.is_available,
-        } if contract else None
 
         # Данные арендатора, если контракт существует
-        item_renter_data = None
-        if contract and contract.renter_id:
+        renter = None
+        if contract:
             renter = models.User.query.filter_by(id=contract.renter_id).first()
-            item_renter_data = {
-                "first_name": renter.first_name,
-                "last_name": renter.last_name,
-                "login": renter.login,
-            } if renter else None
 
         # Список для сравнения
         user_id = session.get("user_id")
         user = models.User.query.filter_by(id=user_id).first()
         compare_list = user.compare_items or []
 
+        favourite_items = db_session.query(models.Favourite.item).filter(models.Favourite.user == user.id).all()
+        favourite_items = [item[0] for item in favourite_items]
+
         return render_template("item_details.html",
                                item_id=item_id,
-                               item=item_data,
-                               contract=contract_data,
-                               item_owner=item_owner_data,
-                               item_renter=item_renter_data,
+                               item=item,
+                               contract=contract,
+                               item_owner=owner,
+                               item_renter=renter,
                                compare_list=compare_list,
-                               user=True)
+                               user=user,
+                               favourite_items=favourite_items)
+
+
+@app.route("/item/<int:item_id>/edit", methods=["GET", "POST", "DELETE"])
+@login_required
+def item_edit(item_id):
+    if request.method == "GET":
+
+        active_contracts = models.Contract.query.filter(
+            models.Contract.item_id == item_id,
+            models.Contract.date_end > datetime.utcnow().strftime("%Y-%m-%d")
+        ).all()
+
+        # Если есть активные контракты, блокируем редактирование товара
+        if active_contracts:
+            flash("Невозможно редактировать товар, так как для него есть активные контракты.", "error")
+            return redirect(url_for('item_details', item_id=item_id))
+
+        item = models.Item.query.filter_by(id=item_id).first()
+        return render_template("item_edit.html", item=item)
+
     if request.method == "POST":
-        return "POST"
-    if request.method == "DELETE":
-        return f"DELETE {item_id}"
+        item = models.Item.query.filter_by(id=item_id).first()
+
+        if request.form.get('_method') == "DELETE":
+            models.Contract.query.filter_by(item_id=item_id).delete()
+            models.Favourite.query.filter_by(item=item_id).delete()
+            db_session.delete(item)
+            db_session.commit()
+            return redirect(url_for("profile", user_id=session['user_id']))
+            # DELETE END
+
+        # POST START
+        form_data = dict(request.form)
+        if form_data.get("name"):
+            item.name = form_data.get("name")
+        if form_data.get("description"):
+            item.desc = form_data.get("description")
+        if form_data.get("price_h"):
+            item.price_h = form_data.get("price_h")
+        if form_data.get("price_d"):
+            item.price_d = form_data.get("price_d")
+        if form_data.get("price_w"):
+            item.price_w = form_data.get("price_w")
+        if form_data.get("price_m"):
+            item.price_m = form_data.get("price_m")
+
+        db_session.add(item)
+        db_session.commit()
+
+        flash("Товар обновлён", "success")
+        return redirect(url_for('item_details', item_id=item.id))
 
 
 @app.route("/contracts/new", methods=["GET", "POST"])
@@ -473,22 +525,22 @@ def create_contract():
 @app.route("/contracts/random_contract", methods=["GET"])
 @login_required
 def contracts():
-    contract_id = randint(1, 20)
-    return redirect(url_for("contract_details", contract_id=contract_id))
+    item_id = randint(1, 20)
+    return redirect(url_for("contract_details", item_id=item_id))
 
 
-@app.route("/contracts/<contract_id>", methods=["GET", "POST", "PUT"])
+@app.route("/contracts/<item_id>", methods=["GET", "POST"])
 @login_required
-def contract_details(contract_id):
+def contract_details(item_id):
     if request.method == "GET":
         if not session.get("user_id"):
             return redirect(url_for("login"))
 
-        # Получаем контракт по contract_id
-        contract = models.Contract.query.get(contract_id)
+        contract = models.Contract.query.get(item_id)
 
         if not contract:
-            return flash_and_redirect("error-message", "Контракт не найден", "/contracts")
+            flash("Контракт не найден", "error-message")
+            abort(404)
 
         owner_id = contract.owner_id
         renter_id = contract.renter_id
@@ -497,118 +549,127 @@ def contract_details(contract_id):
         item_renter = models.User.query.get(renter_id)
 
         item = models.Item.query.get(contract.item_id)
-
-        # Данные контракта
-        contract_data = {"start_date": contract.date_start,
-                         "end_date": contract.date_end,
-                         "is_available": contract.is_available,
-                         "owner_id": contract.owner_id,
-                         "renter_id": contract.renter_id,
-                         "item_id": contract.item_id}
-
-        # Данные владельца
-        item_owner_data = {"first_name": item_owner.first_name,
-                           "last_name": item_owner.last_name,
-                           "login": item_owner.login}
-
-        # Данные арендатора
-        item_renter_data = {"first_name": item_renter.first_name,
-                            "last_name": item_renter.last_name,
-                            "login": item_renter.login}
-
-        item_data = {"name": item.name}
-
         return render_template("contract_details.html",
-                               contract=contract_data,
-                               item=item_data,
-                               item_owner=item_owner_data,
-                               item_renter=item_renter_data,
+                               contract=contract,
+                               item=item,
+                               item_owner=item_owner,
+                               item_renter=item_renter,
                                user=True)
 
     if request.method == "POST":
-        return f"POST {contract_id}"
-    if request.method == "PUT":
-        return f"PUT {contract_id}"
+        return f"POST {item_id}"
 
 
 @app.route("/search", methods=["GET"])
 def search():
-
     search_query = request.args.get("q", "").lower()
+    if search_query:
+        # Подходящие профили
+        founded_profiles = models.User.query.filter(
+            models.User.login.ilike(f"%{search_query}%") |
+            models.User.first_name.ilike(f"%{search_query}%") |
+            models.User.last_name.ilike(f"%{search_query}%")
+        ).all()
 
-    # Подходящие профили
-    founded_profiles = models.User.query.filter(
-        models.User.login.ilike(f"%{search_query}%") |
-        models.User.first_name.ilike(f"%{search_query}%") |
-        models.User.last_name.ilike(f"%{search_query}%")
-    ).all()
+        # Подходящие предметы
+        founded_items = models.Item.query.filter(
+            models.Item.name.ilike(f"%{search_query}%") |
+            models.Item.desc.ilike(f"%{search_query}%")
+        ).all()
 
-    # Подходящие предметы
-    founded_items = models.Item.query.filter(
-        models.Item.name.ilike(f"%{search_query}%") |
-        models.Item.desc.ilike(f"%{search_query}%")
-    ).all()
+        # Данные для профилей
+        profile_card_data = [
+            {
+                "id": user.id,
+                "login": user.login,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "avatar": user.avatar,
+                "register_date": user.register_date,
+                "owner_contracts": models.Contract.query.filter_by(owner_id=user.id).count(),
+                "renter_contracts": models.Contract.query.filter_by(renter_id=user.id).count(),
+            }
+            for user in founded_profiles
+        ]
 
-    # Данные для профилей
-    profile_card_data = [
-        {
-            "id": user.id,
-            "login": user.login,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "avatar": user.avatar,
-            "register_date": user.register_date,
-            "owner_contracts": models.Contract.query.filter_by(owner_id=user.id).count(),
-            "renter_contracts": models.Contract.query.filter_by(renter_id=user.id).count(),
-        }
-        for user in founded_profiles
-    ]
+        # Данные для предметов
+        item_card_data = [
+            {
+                "id": item.id,
+                "photo": item.photo,
+                "name": item.name,
+                "desc": item.desc,
+                "price_h": item.price_h,
+                "price_d": item.price_d,
+                "price_w": item.price_w,
+                "price_m": item.price_m,
+                "owner_id": item.owner_id,
+                "owner_name": item.owner.first_name + " " + item.owner.last_name,
+            }
+            for item in founded_items
+        ]
 
-    # Данные для предметов
-    item_card_data = [
-        {
-            "id": item.id,
-            "photo": item.photo,
-            "name": item.name,
-            "desc": item.desc,
-            "price_h": item.price_h,
-            "price_d": item.price_d,
-            "price_w": item.price_w,
-            "price_m": item.price_m,
-            "owner_id": item.owner_id,
-            "owner_name": item.owner.first_name + " " + item.owner.last_name,
-        }
-        for item in founded_items
-    ]
+        # Сохранение в истории поиска, если пользователь авторизован
+        user_id = session.get("user_id")
+        if user_id:
+            if search_query:
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Сохранение в истории поиска, если пользователь авторизован
-    user_id = session.get("user_id")
-    if user_id:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_search = models.SearchHistory(
-            user=user_id,
-            search_text=search_query,
-            timestamp=timestamp
-        )
-        db_session.add(new_search)
-        db_session.commit()
+                existing_record = models.SearchHistory.query.filter_by(user=user_id).first()
+                if existing_record:
+                    existing_record.search_text += f", {search_query}"
+                    existing_record.timestamp += f", {timestamp}"
+                else:
+                    new_search = models.SearchHistory(
+                        user=user_id,
+                        search_text=search_query,
+                        timestamp=timestamp
+                    )
+                    db_session.add(new_search)
 
-    return render_template("search.html", users=profile_card_data, items=item_card_data)
+                db_session.commit()
+
+        return render_template("search.html", users=profile_card_data, items=item_card_data)
 
 
 @app.route("/search_history", methods=["GET"])
 @login_required
 def search_history():
     user_id = session.get("user_id")
+
+    # Получаем последние 10 записей истории поиска для текущего пользователя
     search_history = models.SearchHistory.query.filter_by(user=user_id).order_by(
-        models.SearchHistory.timestamp.desc()).limit(10).all()
-    return render_template("search_history.html", search_history=search_history)
+        models.SearchHistory.timestamp.desc()).all()
+
+    # Инициализируем списки для запросов и временных меток
+    search_queries = []
+    timestamps = []
+
+    # Обрабатываем каждую запись истории поиска
+    for record in search_history:
+        # Разделяем строки по запятой и добавляем в соответствующие списки
+        queries = record.search_text.split(',')  # Разделяем по запятой
+        time_stamps = record.timestamp.split(',')  # Разделяем по запятой
+
+        # Добавляем результаты в списки
+        search_queries.extend(queries)  # Добавляем все запросы
+        timestamps.extend(time_stamps)  # Добавляем все временные метки
+
+    # Удаляем лишние пробелы и очищаем списки
+    search_queries = [query.strip() for query in search_queries]
+    timestamps = [timestamp.strip() for timestamp in timestamps]
+
+    # Печатаем для отладки
+    print(search_queries)
+    print(timestamps)
+
+    return render_template("search_history.html", search_queries=search_queries, timestamps=timestamps)
 
 
 @app.route("/complain", methods=["GET", "POST"])
 @login_required
 def complain():
-    if request.method == "POST":
+    if request.method == "GET":
         return render_template("complain.html")
     if request.method == "POST":
         return "POST"
@@ -636,7 +697,7 @@ def add_to_compare():
             flash(f"Нельзя сравнивать одновременно более {MAX_ITEMS_TO_COMPARE} товаров", "result")
             return redirect(request.referrer)
 
-    models.User.query.filter_by(id=user_id).update({"compare_items": compare_list})     # Особенности работы с JSON
+    models.User.query.filter_by(id=user_id).update({"compare_items": compare_list})  # Особенности работы с JSON
     db_session.commit()
 
     flash("Список для сравнения обновлен.", "result")

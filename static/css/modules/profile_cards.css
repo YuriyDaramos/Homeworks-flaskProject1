@@ -1,0 +1,130 @@
+/* Стили для карточек профиля */
+.profile-items-container {
+    display: flex;
+    flex-direction: column; /* Располагаем карточки в одну колонку */
+    gap: 20px; /* Отступы между карточками */
+    margin: 20px; /* Отступ для всего контейнера */
+    max-width: 1000px; /* Максимальная ширина контейнера */
+}
+
+.profile-item-card {
+    display: flex;
+    flex-direction: column; /* Располагаем все элементы внутри карточки в одну колонку */
+    background-color: #242629; /* Цвет фона карточки */
+    color: #EEEEEE; /* Цвет текста */
+    border-radius: 8px; /* Закругленные углы */
+    padding: 15px; /* Внутренние отступы */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    border: 2px solid #812223; /* Цвет и ширина контура карточки */
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине и высоте */
+}
+
+.profile-item-card:hover {
+    background-color: #2E2023; /* Цвет фона при наведении */
+}
+
+.profile-item-photo {
+    margin-bottom: 15px; /* Отступ между изображением и остальным содержимым */
+}
+
+.profile-item-photo img {
+    width: 100px; /* Ширина изображения */
+    height: 100px; /* Высота изображения */
+    border-radius: 10px; /* Закругляем изображение */
+}
+
+.profile-item-details {
+    display: flex;
+    flex-direction: column; /* Располагаем текст вертикально */
+    justify-content: space-between; /* Распределяем контент по высоте */
+    height: 100%; /* Задаем высоту для выравнивания */
+}
+
+.profile-item-name {
+    font-size: 16px; /* Размер шрифта для названия товара */
+    font-weight: bold; /* Жирный шрифт для названия товара */
+}
+
+.profile-item-desc {
+    color: #92979F; /* Цвет текста для описания товара */
+    font-size: 12px; /* Размер шрифта для описания */
+    margin-top: 5px; /* Отступ между названием и описанием */
+    display: -webkit-box; /* Включаем режим многоколоночного текста */
+    -webkit-line-clamp: 2; /* Обрезаем после двух строк */
+    -webkit-box-orient: vertical; /* Устанавливаем ориентацию на вертикальную */
+    overflow: hidden; /* Обрезаем текст */
+    text-overflow: ellipsis; /* Добавляем многоточие */
+}
+
+.profile-price-table {
+    margin-top: 5px; /* Уменьшаем отступ между описанием и таблицей */
+    width: 100%; /* Ширина таблицы */
+    border-collapse: collapse; /* Убираем промежутки между ячейками */
+}
+
+.profile-price-table th, .profile-price-table td {
+    padding: 4px; /* Меньше отступов */
+    text-align: center; /* Выравнивание текста в ячейках */
+    border: 1px dotted #92979F; /* Пунктирные границы с цветом текста */
+    color: #92979F; /* Цвет текста в таблице такой же, как и для описания */
+    font-size: 12px; /* Размер шрифта для таблицы */
+}
+
+.profile-item-data {
+    margin-top: 5px; /* Уменьшаем отступ между таблицей и статусом */
+    font-size: 12px; /* Размер шрифта для статуса */
+}
+
+.profile-item-data span {
+    font-weight: bold;
+    color: #EEEEEE; /* Цвет для доступности */
+}
+
+
+/* Стили для карточек контрактов */
+.profile-contracts-container {
+    display: flex;
+    flex-direction: column; /* Располагаем карточки в одну колонку */
+    gap: 20px; /* Отступы между карточками */
+    margin: 20px; /* Отступ для всего контейнера */
+    max-width: 1000px; /* Максимальная ширина контейнера */
+}
+
+.profile-contract-card {
+    display: flex;
+    flex-direction: column; /* Все элементы внутри карточки будут располагаться в одну колонку */
+    background-color: #242629; /* Цвет фона карточки */
+    color: #EEEEEE; /* Цвет текста */
+    border-radius: 8px; /* Закругленные углы */
+    padding: 15px; /* Внутренние отступы */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    border: 2px solid #812223; /* Цвет и ширина контура карточки */
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине и высоте */
+}
+
+.profile-contract-card:hover {
+    background-color: #2E2023; /* Цвет фона при наведении */
+}
+
+.profile-contract-name {
+    margin-bottom: 10px; /* Отступ снизу */
+}
+
+.profile-contract-name p {
+    font-size: 18px; /* Размер шрифта для названия товара */
+    font-weight: bold; /* Жирный шрифт */
+    color: #FFFFFF; /* Белый цвет для текста */
+    margin: 0; /* Убираем отступы */
+}
+
+.profile-contract-details p {
+    font-size: 14px; /* Размер шрифта для остальных данных */
+    color: #92979F; /* Цвет для остальных данных */
+    margin: 5px 0; /* Отступы между строками */
+}
+
+.profile-contract-details p strong {
+    font-weight: bold; /* Жирное начертание для лейблов (например, "Товар:", "Дата начала:") */
+}

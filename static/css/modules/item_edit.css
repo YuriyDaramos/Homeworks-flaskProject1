@@ -1,0 +1,121 @@
+/* Стили для формы редактирования товара */
+.item-edit-content {
+    background-color: #242629;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-edit-content h2 {
+    color: #EEEEEE;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+/* Блок для отображения флеш-сообщений */
+.flash-messages {
+    margin-bottom: 15px;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.flash-message.success {
+    background-color: #4CAF50;
+    color: #FFFFFF;
+}
+
+.flash-message.error {
+    background-color: #F44336;
+    color: #FFFFFF;
+}
+
+/* Стили для полей ввода */
+.item-field {
+    margin-bottom: 20px;
+}
+
+.item-field label {
+    color: #EEEEEE;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.item-edit-field {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #CCCCCC;
+    background-color: #3A3B3F;
+    color: #EEEEEE;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.item-edit-field:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Стили для кнопок */
+.item-actions button {
+    color: #F1F1F1;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Стили для кнопки "Сохранить изменения" */
+.item-actions button.btn-primary {
+    background-color: #4CAF50; /* Зеленый для сохранения */
+    margin-right: 10px; /* Отступ справа для раздвига */
+}
+
+.item-actions button.btn-primary:hover {
+    background-color: #388E3C; /* Темно-зеленый при наведении */
+    transform: scale(1.05);
+}
+
+/* Стили для кнопки "Отмена" */
+.item-actions button.btn-secondary {
+    background-color: #92979F;
+}
+
+.item-actions button.btn-secondary:hover {
+    background-color: #A6A8AB;
+    transform: scale(1.05);
+}
+
+/* Стили для кнопки "Удалить товар" */
+.item-actions-delete button.btn-danger {
+    background-color: #D32F2F; /* Красный для удаления */
+    margin-top: 20px; /* Отступ сверху */
+    margin-left: 10px; /* Добавляем отступ слева для раздвига */
+    border-radius: 5px; /* Добавляем закругления */
+    padding: 10px 20px; /* Для адекватного размера кнопки */
+    border: none; /* Убираем стандартную обводку */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Добавляем тень для глубины */
+}
+
+.item-actions-delete button.btn-danger:hover {
+    background-color: #F44336; /* Более яркий красный при наведении */
+    transform: scale(1.05);
+}
+
+/* Для кнопок, если они неактивны */
+.item-actions button:disabled {
+    background-color: #6E6E6E;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

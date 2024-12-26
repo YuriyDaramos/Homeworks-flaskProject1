@@ -1,0 +1,122 @@
+.fav-items-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+    gap: 20px; /* Отступ между карточками */
+    margin: 20px; /* Отступ для всего контейнера */
+    max-width: 1000px; /* Устанавливаем максимальную ширину контейнера */
+}
+
+.fav-item-card {
+    display: flex; /* Используем Flexbox для выравнивания содержимого карточки */
+    background-color: #242629; /* Цвет фона карточки */
+    color: #EEEEEE; /* Цвет текста */
+    border-radius: 8px; /* Закругленные углы */
+    padding: 10px; /* Уменьшенные внутренние отступы */
+    transition: background-color 0.3s; /* Плавный переход фона при наведении */
+    border: 2px solid #812223; /* Цвет и ширина контура карточки */
+    align-items: center; /* Выравниваем содержимое по центру по вертикали */
+    height: 180px; /* Увеличиваем высоту карточки для вмещения всего контента */
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине и высоте */
+}
+
+.fav-item-card:hover {
+    background-color: #2E2023; /* Цвет фона при наведении */
+}
+
+.fav-item-photo {
+    margin-right: 10px; /* Отступ между изображением и текстом */
+}
+
+.fav-item-photo img {
+    width: 80px; /* Ширина изображения */
+    height: 80px; /* Высота изображения */
+    border-radius: 10px; /* Закругляем изображение */
+}
+
+.fav-item-short-details {
+    display: flex;
+    flex-direction: column; /* Располагаем текст вертикально */
+    justify-content: space-between; /* Распределяем контент по высоте */
+    height: 100%; /* Задаем высоту для выравнивания */
+}
+
+.fav-item-name {
+    font-size: 16px; /* Размер шрифта для названия товара */
+    font-weight: bold; /* Жирный шрифт для названия товара */
+}
+
+.fav-item-short-desc {
+    color: #92979F; /* Цвет текста для описания товара */
+    font-size: 12px; /* Размер шрифта для описания */
+    margin-top: 5px; /* Отступ между названием и описанием */
+    display: -webkit-box; /* Включаем режим многоколоночного текста */
+    -webkit-line-clamp: 2; /* Обрезаем после двух строк */
+    -webkit-box-orient: vertical; /* Устанавливаем ориентацию на вертикальную */
+    overflow: hidden; /* Обрезаем текст */
+    text-overflow: ellipsis; /* Добавляем многоточие */
+}
+
+.fav-price-table {
+    margin-top: 5px; /* Уменьшаем отступ между описанием и таблицей */
+    width: 100%; /* Ширина таблицы */
+    border-collapse: collapse; /* Убираем промежутки между ячейками */
+}
+
+.fav-price-table th, .fav-price-table td {
+    padding: 4px; /* Меньше отступов */
+    text-align: center; /* Выравнивание текста в ячейках */
+    border: 1px dotted #92979F; /* Пунктирные границы с цветом текста */
+    color: #92979F; /* Цвет текста в таблице такой же, как и для описания */
+    font-size: 12px; /* Размер шрифта для таблицы */
+}
+
+.fav-item-data {
+    margin-top: 5px; /* Уменьшаем отступ между таблицей и статусом */
+    font-size: 12px; /* Размер шрифта для статуса */
+}
+
+.fav-item-data span {
+    font-weight: bold;
+    color: #EEEEEE; /* Цвет для доступности */
+}
+
+
+/* Стили для контейнера кнопок в избранном */
+.fav-form-item {
+    margin-top: 10px;
+}
+
+/* Кнопка "Добавить в избранное" */
+.fav-button-add {
+    background-color: #C69C6D; /* Темно-золотой фон для добавления */
+    color: white; /* Белый текст */
+    padding: 10px 20px; /* Отступы */
+    border: none; /* Убираем границу */
+    border-radius: 5px; /* Закругленные углы */
+    cursor: pointer; /* Курсор в виде руки */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Плавный переход */
+    font-size: 14px; /* Размер шрифта */
+}
+
+.fav-button-add:hover {
+    background-color: #B88A4D; /* Более темный золотой при наведении */
+    transform: scale(1.05); /* Легкое увеличение кнопки при наведении */
+}
+
+/* Кнопка "Убрать из избранного" */
+.fav-button-remove {
+    background-color: #FFB84D; /* Темно-желтый фон для удаления */
+    color: white; /* Белый текст */
+    padding: 10px 20px; /* Отступы */
+    border: none; /* Убираем границу */
+    border-radius: 5px; /* Закругленные углы */
+    cursor: pointer; /* Курсор в виде руки */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Плавный переход */
+    font-size: 14px; /* Размер шрифта */
+}
+
+.fav-button-remove:hover {
+    background-color: #E6A900; /* Темный желтый при наведении */
+    transform: scale(1.05); /* Легкое увеличение кнопки при наведении */
+}

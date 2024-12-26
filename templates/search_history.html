@@ -7,7 +7,7 @@
         <h2>Ваша история поиска</h2>
 
         <!-- Проверка, если история поиска существует -->
-        {% if search_history %}
+        {% if search_queries and timestamps %}
             <table class="search-history-table">
                 <thead>
                     <tr>
@@ -16,13 +16,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for record in search_history %}
+                    {% for i in range(search_queries|length) %}
                         <tr>
-                            <td>{{ record.timestamp }}</td>
+                            <td>{{ timestamps[i] }}</td>
                             <td>
                                 <!-- Кликабельный запрос для нового поиска -->
-                                <a href="{{ url_for('search') }}?q={{ record.search_text }}" class="search-query-link">
-                                    {{ record.search_text }}
+                                <a href="{{ url_for('search') }}?q={{ search_queries[i] }}" class="search-query-link">
+                                    {{ search_queries[i] }}
                                 </a>
                             </td>
                         </tr>
