@@ -6,6 +6,9 @@ services:
       - 5000:5000
     environment:
       - RABBITMQ_HOST=rabbit_host
+      - FLASK_ENV=development
+    volumes:
+      - .:/app
 
   rabbitmq:
     image: rabbitmq:3

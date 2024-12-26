@@ -172,31 +172,85 @@ def profiles():
     return render_template("profiles.html", users=profile_card_data)
 
 
-@app.route("/profile/<user_id>", methods=["GET", "PUT", "DELETE"])
+@app.route("/profile/<int:user_id>", methods=["GET"])
+@login_required
 def profile(user_id):
     if request.method == "GET":
-        profile_fields = ("login",
-                          "first_name",
-                          "last_name",
-                          "register_date",
-                          "phone_number",
-                          "email")
-
-        # Если не авторизован
-        if not session.get("user_id"):
-            user_data = {field: "*" * 10 for field in profile_fields}
-            return render_template("profile.html", user=user_data)
-
-        # Если авторизован
         user = models.User.query.filter_by(id=user_id).first()
-        user_data = {field: getattr(user, field) for field in profile_fields}
-        return render_template("profile.html", user=user_data)
+        if user is None:
+            return "Пользователь не найден", 404
+        return render_template("profile.html", user=user)
 
-    if request.method == "PUT":
-        return "PUT"
 
-    if request.method == "DELETE":
-        return "DELETE"
+@app.route("/profile/edit", methods=["GET", "POST", "DELETE"])
+@login_required
+def profile_edit():
+    if request.method == "GET":
+        user_id = session.get("user_id")
+        user = models.User.query.filter_by(id=user_id).first()
+        return render_template("profile_edit.html", user=user)
+
+    if request.method == "POST":
+        user_id = session.get("user_id")
+        user = models.User.query.filter_by(id=user_id).first()
+
+        if request.form.get('_method') == 'DELETE':
+            user_items = models.Item.query.filter_by(owner_id=user.id).first()
+            if user_items:
+                flash("Необходимо удалить все арендуемые предметы, прежде чем удалить профиль.", "error")
+                return render_template("profile_edit.html", user=user)
+
+            user_contracts = models.Contract.query.filter(
+                (models.Contract.owner_id == user_id) | (models.Contract.renter_id == user_id)
+            ).all()
+            if user_contracts:
+                for contract in user_contracts:
+                    if contract.date_end > datetime.utcnow():
+                        flash("Необходимо дождаться окончания всех активных контрактов, прежде чем удалить профиль.",
+                              "error")
+                        return render_template("profile_edit.html", user=user)
+
+            # db_session.delete(user)
+            # db_session.commit()
+            session.pop("user_id", None)  # Причудливый способ разлогиниться специально для тестов
+
+            return redirect(url_for("index"))
+            # DELETE END
+
+        # POST START
+        form_data = dict(request.form)
+
+        if form_data.get("avatar"):
+            user.avatar = form_data.get("avatar")
+        if form_data.get("email"):
+            email = form_data.get("email")
+            if "@" not in email or "." not in email:
+                flash("Неверный формат почты", "error")
+                return render_template("profile_edit.html", user=user)
+            existing_user = models.User.query.filter_by(email=email).first()
+            if existing_user and email != user.email:
+                flash("Такой почтовый адрес уже используется", "error")
+                return render_template("profile_edit.html", user=user)
+            user.email = form_data.get("email")
+        if form_data.get("new_password"):
+            if not form_data.get("new_password") == form_data.get("confirm_password"):
+                flash("Пароли не совпадают", "error")
+                return render_template("profile_edit.html", user=user)
+            user.password = form_data.get("new_password")
+        if form_data.get("first_name"):
+            user.first_name = form_data.get("first_name")
+        if form_data.get("last_name"):
+            user.last_name = form_data.get("last_name")
+        if form_data.get("phone_number"):
+            user.phone_number = form_data.get("phone_number")
+        if form_data.get("ipn"):
+            user.ipn = form_data.get("ipn")
+
+        db_session.add(user)
+        db_session.commit()
+
+        flash("Профиль обновлён", "success")
+        return render_template("profile_edit.html", user=user)
 
 
 @app.route("/profiles/random_user", methods=["GET"])

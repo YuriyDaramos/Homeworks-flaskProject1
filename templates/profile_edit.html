@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block content %}
+    <div class="profile-edit-content">
+        <!-- Блок для отображения флеш-сообщений -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('profile_edit') }}">
+            <h2>Редактировать профиль</h2>
+            <div class="profile-avatar">
+                <label for="avatar">Сменить аватар (URL):</label>
+                <input type="text" id="avatar" name="avatar" class="profile-edit-field" value="{{ user.avatar }}">
+            </div>
+            <div class="profile-field">
+                <label for="new_password"><strong>Новый пароль:</strong></label>
+                <input type="password" id="new_password" name="new_password" class="profile-edit-field">
+            </div>
+
+            <div class="profile-field">
+                <label for="confirm_password"><strong>Подтвердите новый пароль:</strong></label>
+                <input type="password" id="confirm_password" name="confirm_password" class="profile-edit-field">
+            </div>
+            <div class="profile-field">
+                <label for="first_name"><strong>Имя:</strong></label>
+                <input type="text" id="first_name" name="first_name" class="profile-edit-field" value="{{ user.first_name }}">
+            </div>
+            <div class="profile-field">
+                <label for="last_name"><strong>Фамилия:</strong></label>
+                <input type="text" id="last_name" name="last_name" class="profile-edit-field" value="{{ user.last_name }}">
+            </div>
+            <div class="profile-field">
+                <label for="email"><strong>Контактный email:</strong></label>
+                <input type="email" id="email" name="email" class="profile-edit-field" value="{{ user.email }}">
+            </div>
+            <div class="profile-field">
+                <label for="phone_number"><strong>Контактный телефон:</strong></label>
+                <input type="text" id="phone_number" name="phone_number" class="profile-edit-field" value="{{ user.phone_number }}">
+            </div>
+            <div class="profile-field">
+                <label for="ipn"><strong>ИПН:</strong></label>
+                <input type="text" id="ipn" name="ipn" class="profile-edit-field" value="{{ user.ipn }}">
+            </div>
+
+            <div class="profile-actions">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('profile', user_id=user.id) }}'">Отмена</button>
+            </div>
+
+        </form>
+        <form method="POST" action="{{ url_for('profile_edit') }}">
+            <!-- Скрытое поле для DELETE метода -->
+            <input type="hidden" name="_method" value="DELETE">
+            <div class="profile-actions-delete">
+                <button type="submit" class="btn btn-danger">Удалить профиль</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

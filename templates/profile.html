@@ -16,5 +16,24 @@
             <div class="profile-field"><strong>Контактный телефон:</strong> <span>{{ user.phone_number }}</span></div>
             <div class="profile-field"><strong>Контактный email:</strong> <span>{{ user.email }}</span></div>
             <div class="profile-field"><strong>Паспортные данные:</strong> <span>[Зарезервировано]</span></div>
+
+            <div class="profile-actions">
+                <a href="{{ url_for('profile_edit') }}" class="btn btn-primary">Редактировать профиль</a>
+            </div>
+
+        </div>
+
+        <div class="profile-right-bar">
+            <div class="profile-my-items">
+            <h3>Мои товары</h3>
+            </div>
+
+            <div class="profile-rented-items">
+            <h3>Арендованные товары</h3>
+            </div>
+
+            <div class="profile-contracts">
+            <h2>Заключенные контракты</h2>
+            </div>
         </div>
 {% endblock %}
